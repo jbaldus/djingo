@@ -1,0 +1,10 @@
+/* static/admin/css/custom.css */
+.button.duplicate-board {
+    background: #417690;
+    color: white;
+}
+
+.button.end-game {
+    background: #ba2121;
+    color: white;
+}

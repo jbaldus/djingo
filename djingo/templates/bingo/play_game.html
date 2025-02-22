@@ -1,0 +1,271 @@
+{# templates/bingo/play_game.html #}
+{% extends 'bingo/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="game-header">
+        <h1>Bingo Game</h1>
+        <div class="player-info">
+            Playing as: <strong>{{ player.name }}</strong>
+        </div>
+    </div>
+
+    <div class="bingo-board" id="bingoBoard" data-player-id="{{ player.id }}">
+        {% for item in board_items %}
+        <div class="bingo-cell" 
+             data-position="{{ forloop.counter0 }}"
+             {% if forloop.counter0 in player.covered_positions %}
+             data-covered="true"
+             {% endif %}
+             {% if game.has_free_square and forloop.counter0 == 12 %}
+             data-free="true"
+             {% endif %}>
+            {{ item }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="modal" id="winnerModal">
+        <div class="modal-content">
+            <h2>We Have a Winner!</h2>
+            <p id="winnerMessage"></p>
+            <div class="modal-buttons">
+                <button class="button button-primary" onclick="location.reload()">Play Again</button>
+                <button class="button button-secondary" onclick="window.close()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="errorMessage" class="error-message" style="display: none;"></div>
+<div id="connectedPlayers" class="connected-players"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const board = document.getElementById('bingoBoard');
+    const playerId = board.dataset.playerId;
+    const cells = document.querySelectorAll('.bingo-cell');
+    let gameActive = true;
+
+    // Initialize cells
+    cells.forEach(cell => {
+        if (cell.dataset.covered === 'true') {
+            cell.classList.add('covered');
+        }
+        if (cell.dataset.free === 'true') {
+            cell.classList.add('free', 'covered');
+        }
+    });
+
+    // Handle cell clicks
+    board.addEventListener('click', async (e) => {
+        if (!gameActive) return;
+        
+        const cell = e.target.closest('.bingo-cell');
+        if (!cell || cell.classList.contains('covered')) return;
+
+        const position = parseInt(cell.dataset.position);
+        
+        try {
+            const response = await fetch(`/game/mark/${playerId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ position })
+            });
+
+            const data = await response.json();
+            
+            if (data.status === 'marked') {
+                cell.classList.add('covered');
+            } else if (data.status === 'win') {
+                gameActive = false;
+                showWinner(data.winner);
+            }
+        } catch (error) {
+            console.error('Error marking position:', error);
+        }
+    });
+
+    // WebSocket connection for real-time updates
+    /*const gameSocket = new WebSocket(
+        `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/game/${playerId}/`
+    );
+
+    gameSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        if (data.type === 'winner') {
+            gameActive = false;
+            showWinner(data.winner);
+        }
+    };*/
+
+    function showWinner(winner) {
+        const modal = document.getElementById('winnerModal');
+        const message = document.getElementById('winnerMessage');
+        message.textContent = `${winner} has won the game!`;
+        modal.style.display = 'flex';
+        
+        // Trigger confetti
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+    }
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    //v2 starts here 
+    let ws = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    const baseReconnectDelay = 1000; // Start with 1 second delay
+    let reconnectTimeout = null;
+
+    function connectWebSocket() {
+        const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/game/${playerId}/`;
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = function() {
+            console.log('WebSocket connected');
+            reconnectAttempts = 0;
+            // Request initial game state
+            ws.send(JSON.stringify({
+                type: 'request_game_state'
+            }));
+            // Start ping interval
+            startPingInterval();
+        };
+
+        ws.onclose = function(e) {
+            console.log('WebSocket closed:', e.code, e.reason);
+            clearPingInterval();
+            
+            // Don't attempt to reconnect if the game is over or the close was intentional
+            if (e.code === 4004 || e.code === 4005 || !gameActive) {
+                console.log('Not attempting to reconnect - game ended or invalid session');
+                return;
+            }
+
+            handleReconnect();
+        };
+
+        ws.onerror = function(err) {
+            console.error('WebSocket error:', err);
+            ws.close();
+        };
+
+        ws.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            
+            switch(data.type) {
+                case 'winner':
+                    gameActive = false;
+                    showWinner(data.winner);
+                    break;
+                case 'game_state':
+                    updateGameState(data.data);
+                    break;
+                case 'error':
+                    console.error('Server error:', data.message);
+                    break;
+                case 'pong':
+                    // Handle pong response
+                    break;
+            }
+        };
+    }
+
+    function handleReconnect() {
+        if (reconnectAttempts >= maxReconnectAttempts) {
+            console.log('Max reconnection attempts reached');
+            showError('Connection lost. Please refresh the page.');
+            return;
+        }
+
+        const delay = baseReconnectDelay * Math.pow(2, reconnectAttempts);
+        console.log(`Attempting to reconnect in ${delay}ms`);
+        
+        clearTimeout(reconnectTimeout);
+        reconnectTimeout = setTimeout(() => {
+            reconnectAttempts++;
+            connectWebSocket();
+        }, delay);
+    }
+
+    let pingInterval = null;
+    function startPingInterval() {
+        pingInterval = setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'ping' }));
+            }
+        }, 30000); // Send ping every 30 seconds
+    }
+
+    function clearPingInterval() {
+        if (pingInterval) {
+            clearInterval(pingInterval);
+            pingInterval = null;
+        }
+    }
+
+    function updateGameState(state) {
+        // Update UI based on game state
+        if (!state.is_active) {
+            gameActive = false;
+        }
+        if (state.winner) {
+            showWinner(state.winner);
+        }
+        updateConnectedPlayers(state.connected_players);
+    }
+
+    function updateConnectedPlayers(players) {
+        const playerList = document.getElementById('connectedPlayers');
+        if (playerList) {
+            playerList.innerHTML = players.map(name => 
+                `<span class="player-badge">${name}</span>`
+            ).join('');
+        }
+    }
+
+    function showError(message) {
+        // Add error message display logic here
+        const errorDiv = document.getElementById('errorMessage');
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    // Initialize WebSocket connection
+    connectWebSocket();
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        if (ws) {
+            ws.close();
+        }
+        clearPingInterval();
+        clearTimeout(reconnectTimeout);
+    });
+});
+</script>
+{% endblock %}

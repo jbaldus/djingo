@@ -1,0 +1,19 @@
+{# templates/bingo/join_game.html #}
+{% extends 'bingo/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="game-header">
+        <h1>Join Bingo Game</h1>
+        <p>Game Code: {{ game.code }}</p>
+    </div>
+    <form method="POST" class="join-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Enter your name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <button type="submit" class="button button-primary">Join Game</button>
+    </form>
+</div>
+{% endblock %}

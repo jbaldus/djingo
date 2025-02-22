@@ -1,0 +1,28 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    {% if original %}
+        <li>
+            <a href="{% url 'admin:bingo_board_duplicate' original.pk %}" class="button">
+                Duplicate Board
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'admin:bingo_board_export_csv' original.pk %}" class="button">
+                Export CSV
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'admin:bingo_board_export_json' original.pk %}" class="button">
+                Export JSON
+            </a>
+        </li>
+    {% endif %}
+    <li>
+        <a href="{% url 'admin:bingo_board_import' %}" class="button">
+            Import Board
+        </a>
+    </li>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .import-form {
+        max-width: 800px;
+        margin: 20px;
+        padding: 20px;
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .form-row {
+        margin-bottom: 20px;
+    }
+    .help-text {
+        color: #666;
+        font-size: 0.9em;
+        margin: 5px 0;
+    }
+    .format-example {
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        font-family: monospace;
+        margin: 10px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="import-form">
+    <h1>Import Bingo Board</h1>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-row">
+            <label for="board_name">Board Name:</label>
+            <input type="text" name="board_name" id="board_name" required>
+        </div>
+
+        <div class="form-row">
+            <label for="format">File Format:</label>
+            <select name="format" id="format" required>
+                <option value="csv">CSV</option>
+                <option value="json">JSON</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label for="file">File:</label>
+            <input type="file" name="file" id="file" required>
+        </div>
+
+        <div class="help-text">
+            <h3>Format Examples:</h3>
+            
+            <p>CSV Format:</p>
+            <div class="format-example">
+                position,text<br>
+                0,"First item"<br>
+                1,"Second item"<br>
+                ...
+            </div>
+
+            <p>JSON Format:</p>
+            <div class="format-example">
+{
+    "name": "Board Name",
+    "items": [
+        {"position": 0, "text": "First item"},
+        {"position": 1, "text": "Second item"},
+        ...
+    ]
+}
+            </div>
+        </div>
+
+        <div class="submit-row">
+            <input type="submit" value="Import Board" class="default">
+        </div>
+    </form>
+</div>
+{% endblock %}
