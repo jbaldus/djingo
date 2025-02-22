@@ -3,28 +3,25 @@ import json
 import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from channels.exceptions import StopConsumer
 from .models import Player, BingoGame
 
 logger = logging.getLogger(__name__)
 
-class BingoConsumer(AsyncWebsocketConsumer):
+class BingoGameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        logger.info(f"Attempting connection for player_id: {self.scope['url_route']['kwargs'].get('player_id')}")
+        
         try:
             self.player_id = self.scope['url_route']['kwargs']['player_id']
             self.player = await self.get_player()
             
             if not self.player:
-                logger.error(f"Player {self.player_id} not found")
-                await self.close(code=4004)  # Custom close code for invalid player
+                logger.error(f"No player found with ID: {self.player_id}")
+                await self.close(code=4004)
                 return
-            
-            if not self.player.game.is_active:
-                logger.info(f"Attempted to connect to inactive game: {self.player.game.id}")
-                await self.close(code=4005)  # Custom close code for inactive game
-                return
-            
+                
             self.game_group_name = f'game_{self.player.game.id}'
+            logger.info(f"Player {self.player_id} joining game group: {self.game_group_name}")
 
             # Join game group
             await self.channel_layer.group_add(
@@ -32,19 +29,18 @@ class BingoConsumer(AsyncWebsocketConsumer):
                 self.channel_name
             )
 
-            # Mark player as connected in database
-            await self.set_player_connection_status(True)
-            
             await self.accept()
+            logger.info(f"Connection accepted for player {self.player_id}")
             
             # Send initial game state
             await self.send_game_state()
             
         except Exception as e:
-            logger.exception("Error in WebSocket connect")
+            logger.exception(f"Error in connect for player_id {self.player_id}")
             await self.close(code=4000)
 
     async def disconnect(self, close_code):
+        logger.info(f"Disconnecting player {getattr(self, 'player_id', 'unknown')}, code: {close_code}")
         try:
             if hasattr(self, 'game_group_name'):
                 await self.channel_layer.group_discard(
@@ -53,83 +49,117 @@ class BingoConsumer(AsyncWebsocketConsumer):
                 )
             
             if hasattr(self, 'player'):
-                await self.set_player_connection_status(False)
+                await self.update_player_connection_status(False)
                 
         except Exception as e:
-            logger.exception("Error in WebSocket disconnect")
-        finally:
-            raise StopConsumer()
+            logger.exception("Error in disconnect")
 
     async def receive(self, text_data):
         try:
-            text_data_json = json.loads(text_data)
-            message_type = text_data_json.get('type')
+            data = json.loads(text_data)
+            message_type = data.get('type')
             
-            if message_type == 'ping':
-                await self.send(text_data=json.dumps({
-                    'type': 'pong'
-                }))
-            elif message_type == 'request_game_state':
+            if message_type == 'mark_position':
+                position = data.get('position')
+                if position is not None:
+                    winner = await self.mark_position(position)
+                    if winner:
+                        # Notify all players about the winner
+                        await self.channel_layer.group_send(
+                            self.game_group_name,
+                            {
+                                'type': 'winner_announcement',
+                                'winner': self.player.name
+                            }
+                        )
+            elif message_type == 'request_state':
                 await self.send_game_state()
-            
+                
         except json.JSONDecodeError:
-            logger.error("Received invalid JSON")
             await self.send(text_data=json.dumps({
                 'type': 'error',
                 'message': 'Invalid message format'
             }))
-        except Exception as e:
-            logger.exception("Error in WebSocket receive")
-            await self.send(text_data=json.dumps({
-                'type': 'error',
-                'message': 'Internal server error'
-            }))
 
     async def game_update(self, event):
-        try:
-            await self.send(text_data=json.dumps(event))
-        except Exception as e:
-            logger.exception("Error sending game update")
+        # Send game update to WebSocket
+        await self.send(text_data=json.dumps(event))
 
     async def winner_announcement(self, event):
-        try:
-            await self.send(text_data=json.dumps({
-                'type': 'winner',
-                'winner': event['winner']
-            }))
-        except Exception as e:
-            logger.exception("Error sending winner announcement")
+        # Send winner announcement to WebSocket
+        await self.send(text_data=json.dumps({
+            'type': 'winner',
+            'winner': event['winner']
+        }))
 
     @database_sync_to_async
     def get_player(self):
         try:
-            return Player.objects.select_related('game').get(id=self.player_id)
+            player = Player.objects.select_related('game').get(id=self.player_id)
+            logger.info(f"Found player: {player.name} for game: {player.game.code}")
+            return player
         except Player.DoesNotExist:
+            logger.error(f"Player {self.player_id} not found")
+            return None
+        except Exception as e:
+            logger.exception(f"Error getting player {self.player_id}")
             return None
 
     @database_sync_to_async
-    def set_player_connection_status(self, is_connected):
-        try:
-            Player.objects.filter(id=self.player_id).update(is_connected=is_connected)
-        except Exception as e:
-            logger.exception("Error updating player connection status")
+    def update_player_connection_status(self, is_connected):
+        Player.objects.filter(id=self.player_id).update(is_connected=is_connected)
 
-    async def send_game_state(self):
-        try:
-            game_state = await self.get_game_state()
-            await self.send(text_data=json.dumps({
-                'type': 'game_state',
-                'data': game_state
-            }))
-        except Exception as e:
-            logger.exception("Error sending game state")
+    @database_sync_to_async
+    def mark_position(self, position):
+        player = Player.objects.get(id=self.player_id)
+        game = player.game
+        
+        if not game.is_active or player.has_won:
+            return False
+            
+        if position not in player.covered_positions:
+            player.covered_positions.append(position)
+            player.save()
+            
+            # Check for win
+            if self.check_win_condition(player.covered_positions):
+                player.has_won = True
+                game.winner = player
+                game.is_active = False
+                game.save()
+                player.save()
+                return True
+                
+        return False
 
     @database_sync_to_async
     def get_game_state(self):
-        game = self.player.game
+        player = Player.objects.get(id=self.player_id)
+        game = player.game
+        
         return {
-            'game_id': game.id,
+            'type': 'game_state',
             'is_active': game.is_active,
+            'has_won': player.has_won,
             'winner': game.winner.name if game.winner else None,
-            'connected_players': list(game.players.filter(is_connected=True).values_list('name', flat=True))
+            'covered_positions': player.covered_positions,
+            'connected_players': list(game.players.filter(
+                is_connected=True).values_list('name', flat=True))
         }
+
+    async def send_game_state(self):
+        state = await self.get_game_state()
+        await self.send(text_data=json.dumps(state))
+
+    def check_win_condition(self, covered_positions):
+        winning_patterns = [
+            # Rows
+            [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24],
+            # Columns
+            [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24],
+            # Diagonals
+            [0,6,12,18,24], [4,8,12,16,20]
+        ]
+        
+        covered_set = set(covered_positions)
+        return any(all(pos in covered_set for pos in pattern) for pattern in winning_patterns)
