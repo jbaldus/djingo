@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["bingo.jbladddd.com", "localhost"]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://bingo.jbladddd.com',
+]
 
 # Application definition
 
