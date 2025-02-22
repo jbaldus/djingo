@@ -62,7 +62,7 @@ class BingoGame(models.Model):
                 return code
             
     def generate_board_layout(self):
-        items = list(self.board.items.all().values_list('id', flat=True))
+        items = list(self.board.items.all().values_list('text', flat=True))
         random.shuffle(items)
         board_layout = items[:25] # Just the first 25
         if self.has_free_square:

@@ -31,6 +31,14 @@ def join_game(request, code):
     if request.method == 'POST':
         form = PlayerNameForm(request.POST)
         if form.is_valid():
+            name = form.cleaned_data['name']
+
+            # Check for existing player
+            existing_player = Player.objects.filter(name=name, game=game).first()
+            if existing_player:
+                # Redirect to existing player's game
+                return redirect('play_game', player_id=existing_player.id)
+
             player = Player.objects.create(
                 game=game,
                 name=form.cleaned_data['name'],
