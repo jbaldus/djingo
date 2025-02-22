@@ -17,6 +17,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('api/game/<int:player_id>/mark/', views.mark_position, name='mark_position'),
+    path('api/game/<int:player_id>/clear/', views.clear_board, name='clear_board'),
     
     # API routes
     path('api/', include(router.urls)),

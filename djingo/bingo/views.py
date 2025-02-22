@@ -167,3 +167,28 @@ def check_win_condition(covered_positions):
 
     covered_set = set(covered_positions)
     return any(all(pos in covered_set for pos in pattern) for pattern in winning_patterns)
+
+@require_http_methods(["POST"])
+def clear_board(request, player_id):
+    try:
+        player = get_object_or_404(Player, id=player_id)
+        
+        # Reset player's board
+        if player.game.has_free_square:
+            player.covered_positions = [12]  # Keep only center square if it's a free square game
+        else:
+            player.covered_positions = []
+            
+        player.has_won = False
+        player.save()
+        
+        return JsonResponse({
+            'status': 'cleared',
+            'covered_positions': player.covered_positions
+        })
+        
+    except Player.DoesNotExist:
+        return JsonResponse({'error': 'Player not found'}, status=404)
+    except Exception as e:
+        logger.exception("Error clearing board")
+        return JsonResponse({'error': str(e)}, status=500)

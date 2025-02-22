@@ -30,8 +30,8 @@
             <h2>We Have a Winner!</h2>
             <p id="winnerMessage"></p>
             <div class="modal-buttons">
-                <button class="button button-primary" onclick="location.reload()">Play Again</button>
-                <button class="button button-secondary" onclick="window.close()">Close</button>
+                <button class="button button-primary" onclick="clearBoard()">Play Again</button>
+                <button class="button button-secondary" onclick="window.location='/'">Home</button>
             </div>
         </div>
     </div>
@@ -273,6 +273,45 @@ document.addEventListener('DOMContentLoaded', function() {
         clearPingInterval();
         clearTimeout(reconnectTimeout);
     });
+
+    async function clearBoard() {
+    try {
+        const playerId = document.getElementById('bingoBoard').dataset.playerId;
+        const response = await fetch(`/api/game/${playerId}/clear/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        if (data.status === 'cleared') {
+            // Reset all cells except free square if it exists
+            const cells = document.querySelectorAll('.bingo-cell');
+            cells.forEach(cell => {
+                const position = parseInt(cell.dataset.position);
+                if (!cell.classList.contains('free')) {
+                    cell.classList.remove('covered');
+                }
+            });
+            
+            // Close the winner modal
+            const modal = document.getElementById('winnerModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            
+            // Reset game state
+            gameActive = true;
+        }
+    } catch (error) {
+        console.error('Error clearing board:', error);
+    }
+}
 });
 </script>
 {% endblock %}
