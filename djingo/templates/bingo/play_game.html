@@ -30,8 +30,8 @@
             <h2>We Have a Winner!</h2>
             <p id="winnerMessage"></p>
             <div class="modal-buttons">
-                <button class="button button-primary" onclick="location.reload()">Play Again</button>
-                <button class="button button-secondary" onclick="window.close()">Close</button>
+                <button class="button button-primary" onclick="clearBoard()">Play Again</button>
+                <button class="button button-secondary" onclick="window.location='/'">Home</button>
             </div>
         </div>
     </div>
@@ -39,7 +39,7 @@
 <div id="errorMessage" class="error-message" style="display: none;"></div>
 <div id="connectedPlayers" class="connected-players"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const board = document.getElementById('bingoBoard');
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const position = parseInt(cell.dataset.position);
         
         try {
-            const response = await fetch(`/game/mark/${playerId}`, {
+            const response = await fetch(`/api/game/${playerId}/mark/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -75,6 +75,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({ position })
             });
+
+            if (!response.ok) throw new Error('Network response was not ok');
 
             const data = await response.json();
             
@@ -88,19 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error marking position:', error);
         }
     });
-
-    // WebSocket connection for real-time updates
-    /*const gameSocket = new WebSocket(
-        `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/game/${playerId}/`
-    );
-
-    gameSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        if (data.type === 'winner') {
-            gameActive = false;
-            showWinner(data.winner);
-        }
-    };*/
 
     function showWinner(winner) {
         const modal = document.getElementById('winnerModal');
@@ -131,8 +120,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return cookieValue;
     }
-    
-    //v2 starts here 
+
+
     let ws = null;
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 5;
@@ -227,14 +216,32 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateGameState(state) {
-        // Update UI based on game state
-        if (!state.is_active) {
-            gameActive = false;
+        if (!state) return;
+        
+        gameActive = state.is_active;
+        
+        // Update covered positions
+        const cells = document.querySelectorAll('.bingo-cell');
+        cells.forEach(cell => {
+            const position = parseInt(cell.dataset.position);
+            if (state.covered_positions.includes(position)) {
+                cell.classList.add('covered');
+            }
+        });
+
+        // Update connected players if we have that element
+        const playerList = document.getElementById('connectedPlayers');
+        if (playerList && state.connected_players) {
+            playerList.innerHTML = state.connected_players
+                .map(name => `<span class="player-badge">${name}</span>`)
+                .join('');
         }
+
+        // Handle winner state
         if (state.winner) {
+            gameActive = false;
             showWinner(state.winner);
         }
-        updateConnectedPlayers(state.connected_players);
     }
 
     function updateConnectedPlayers(players) {
@@ -266,6 +273,45 @@ document.addEventListener('DOMContentLoaded', function() {
         clearPingInterval();
         clearTimeout(reconnectTimeout);
     });
+
+    async function clearBoard() {
+    try {
+        const playerId = document.getElementById('bingoBoard').dataset.playerId;
+        const response = await fetch(`/api/game/${playerId}/clear/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        if (data.status === 'cleared') {
+            // Reset all cells except free square if it exists
+            const cells = document.querySelectorAll('.bingo-cell');
+            cells.forEach(cell => {
+                const position = parseInt(cell.dataset.position);
+                if (!cell.classList.contains('free')) {
+                    cell.classList.remove('covered');
+                }
+            });
+            
+            // Close the winner modal
+            const modal = document.getElementById('winnerModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            
+            // Reset game state
+            gameActive = true;
+        }
+    } catch (error) {
+        console.error('Error clearing board:', error);
+    }
+}
 });
 </script>
 {% endblock %}

@@ -55,11 +55,19 @@ class BingoGame(models.Model):
 
     def generate_code(self):
         # Generate a random 6-character code
-        chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+        chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
         while True:
             code = ''.join(random.choice(chars) for _ in range(6))
             if not BingoGame.objects.filter(code=code).exists():
                 return code
+            
+    def generate_board_layout(self):
+        items = list(self.board.items.all().values_list('id', flat=True))
+        random.shuffle(items)
+        board_layout = items[:25] # Just the first 25
+        if self.has_free_square:
+            board_layout[12] = "FREE"
+        return board_layout
 
     def save(self, *args, **kwargs):
         if not self.code:

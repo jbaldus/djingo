@@ -1,91 +1,161 @@
-# views.py
-from django.shortcuts import render, get_object_or_404, redirect
+# bingo/views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-from .models import BingoGame, Player
+from .models import BingoGame, BingoBoard, Player
+from .forms import LoginForm, PlayerNameForm
 import json
-import random
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def home(request):
+    context = {
+        'recent_name': request.COOKIES.get('player_name', '')
+    }
+    
+    if request.user.is_authenticated:
+        context.update({
+            'boards': BingoBoard.objects.filter(creator=request.user).order_by('-created_at'),
+            'games': BingoGame.objects.filter(creator=request.user).order_by('-created_at')
+        })
+    
+    return render(request, 'bingo/home.html', context)
 
 def join_game(request, code):
     game = get_object_or_404(BingoGame, code=code, is_active=True)
+    
     if request.method == 'POST':
-        name = request.POST.get('name')
-        if name:
-            # Create randomized board layout
-            items = list(game.board.items.all().values_list('id', flat=True))
-            random.shuffle(items)
-            board_layout = items[:25] # Just the first 25 items
-            
-            # If there's a free square, ensure the center position is marked
-            initial_covered = []
-            if game.has_free_square:
-                initial_covered = [12]  # Center position (0-based)
-                board_layout[12] = "FREE"
-            
+        form = PlayerNameForm(request.POST)
+        if form.is_valid():
             player = Player.objects.create(
                 game=game,
-                name=name,
-                board_layout=board_layout,
-                covered_positions=initial_covered
+                name=form.cleaned_data['name'],
+                board_layout=game.generate_board_layout(),
+                covered_positions=[12] if game.has_free_square else []
             )
-            return redirect('play_game', player_id=player.id)
-    return render(request, 'bingo/join_game.html', {'game': game})
+            
+            response = redirect('play_game', player_id=player.id)
+            response.set_cookie('player_name', form.cleaned_data['name'], max_age=30*24*60*60)  # 30 days
+            return response
+    else:
+        form = PlayerNameForm(initial={'name': request.COOKIES.get('player_name', '')})
+    
+    return render(request, 'bingo/join_game.html', {
+        'game': game,
+        'form': form
+    })
 
 def play_game(request, player_id):
     player = get_object_or_404(Player, id=player_id)
-    game = player.game
-
-    # Add game logic here
-    # For example, you might want to check if the game has started,
-    # retrieve the player's board, check for wins, etc.
-
-    context = {
+    if not player.game.is_active and not player.has_won:
+        return redirect('home')
+    
+    return render(request, 'bingo/play_game.html', {
         'player': player,
-        'game': game,
-        'board_items': player.board_layout,
-        'covered_positions': player.covered_positions,
-        # Add other necessary context data
-    }
+        'game': player.game,
+        'board_items': list(player.board_layout)
+    })
 
-    return render(request, 'bingo/play_game.html', context)
+def login_view(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = LoginForm()
+    
+    return render(request, 'bingo/login.html', {'form': form})
 
-@require_http_methods(['POST'])
+def logout_view(request):
+    logout(request)
+    return redirect('home')
+
+@require_http_methods(["POST"])
 def mark_position(request, player_id):
-    player = get_object_or_404(Player, id=player_id)
-    data = json.loads(request.body)
-    position = data.get('position')
-    
-    if position not in player.covered_positions:
-        player.covered_positions.append(position)
-        player.save()
+    logger.info(f"Marking position for player {player_id}")
+    try:
+        # Log request body
+        logger.debug(f"Request body: {request.body}")
         
-        # Check for win condition
-        if check_win_condition(player.covered_positions):
-            player.has_won = True
-            player.game.winner = player
-            player.game.is_active = False
-            player.game.save()
+        # Get player
+        player = get_object_or_404(Player, id=player_id)
+        logger.debug(f"Found player: {player.name}")
+        
+        # Parse JSON
+        try:
+            data = json.loads(request.body)
+            position = data.get('position')
+            logger.debug(f"Position to mark: {position}")
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {e}")
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+        
+        if position is None:
+            logger.error("No position provided in request")
+            return JsonResponse({'error': 'Position is required'}, status=400)
+        
+        # Log current covered positions
+        logger.debug(f"Current covered positions: {player.covered_positions}")
+        
+        # Check if position is already covered
+        if position in player.covered_positions:
+            logger.debug(f"Position {position} already covered")
+            return JsonResponse({
+                'status': 'already_marked',
+                'positions': player.covered_positions
+            })
+            
+        # Add new position
+        try:
+            if not isinstance(player.covered_positions, list):
+                logger.warning(f"covered_positions is not a list: {type(player.covered_positions)}")
+                player.covered_positions = []
+            
+            player.covered_positions.append(position)
             player.save()
+            logger.debug(f"Added position {position}. New covered positions: {player.covered_positions}")
             
-            # Notify all players about the winner
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                f'game_{player.game.id}',
-                {
-                    'type': 'winner_announcement',
+        except Exception as e:
+            logger.exception("Error updating covered positions")
+            return JsonResponse({'error': 'Error updating game state'}, status=500)
+            
+        # Check win condition
+        try:
+            if check_win_condition(player.covered_positions):
+                logger.info(f"Player {player.name} has won!")
+                player.has_won = True
+                player.game.winner = player
+                player.game.is_active = False
+                player.game.save()
+                player.save()
+                
+                return JsonResponse({
+                    'status': 'win',
                     'winner': player.name
-                }
-            )
-            
-            return JsonResponse({'status': 'win', 'winner': player.name})
+                })
+        except Exception as e:
+            logger.exception("Error checking win condition")
+            return JsonResponse({'error': 'Error checking win condition'}, status=500)
+        
+        return JsonResponse({
+            'status': 'marked',
+            'positions': player.covered_positions
+        })
+        
+    except Player.DoesNotExist:
+        logger.error(f"Player {player_id} not found")
+        return JsonResponse({'error': 'Player not found'}, status=404)
+    except Exception as e:
+        logger.exception("Unexpected error in mark_position")
+        return JsonResponse({'error': str(e)}, status=500)
     
-    return JsonResponse({'status': 'marked'})
-
-
 def check_win_condition(covered_positions):
-    # Define winning patterns (rows, columns, diagonals)
     winning_patterns = [
         # Rows
         [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24],
@@ -94,6 +164,31 @@ def check_win_condition(covered_positions):
         # Diagonals
         [0,6,12,18,24], [4,8,12,16,20]
     ]
-    
+
     covered_set = set(covered_positions)
     return any(all(pos in covered_set for pos in pattern) for pattern in winning_patterns)
+
+@require_http_methods(["POST"])
+def clear_board(request, player_id):
+    try:
+        player = get_object_or_404(Player, id=player_id)
+        
+        # Reset player's board
+        if player.game.has_free_square:
+            player.covered_positions = [12]  # Keep only center square if it's a free square game
+        else:
+            player.covered_positions = []
+            
+        player.has_won = False
+        player.save()
+        
+        return JsonResponse({
+            'status': 'cleared',
+            'covered_positions': player.covered_positions
+        })
+        
+    except Player.DoesNotExist:
+        return JsonResponse({'error': 'Player not found'}, status=404)
+    except Exception as e:
+        logger.exception("Error clearing board")
+        return JsonResponse({'error': str(e)}, status=500)
