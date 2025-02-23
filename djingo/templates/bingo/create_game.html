@@ -1,0 +1,44 @@
+{# templates/bingo/create_game.html #}
+<form method="post" class="create-game-form">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label>Board Size:</label>
+        {{ form.board_size }}
+    </div>
+    
+    <div class="form-group">
+        <label>Win Condition:</label>
+        {{ form.win_condition }}
+    </div>
+    
+    <div class="form-group">
+        <label>Free Square:</label>
+        {{ form.has_free_square }}
+        <small class="help-text">Only available for 5x5 boards</small>
+    </div>
+    
+    <div class="form-group">
+        <label>Select Board:</label>
+        {{ form.board }}
+    </div>
+    
+    <button type="submit" class="button button-primary">Create Game</button>
+</form>
+<script>
+    // Add to your game.js
+    document.addEventListener('DOMContentLoaded', function() {
+        const boardSizeSelect = document.querySelector('[name="board_size"]');
+        const freeSquareCheckbox = document.querySelector('[name="has_free_square"]');
+        
+        if (boardSizeSelect && freeSquareCheckbox) {
+            boardSizeSelect.addEventListener('change', function() {
+                // Only enable free square option for 5x5 boards
+                freeSquareCheckbox.disabled = this.value !== '5';
+                if (this.value !== '5') {
+                    freeSquareCheckbox.checked = false;
+                }
+            });
+        }
+    });
+</script>

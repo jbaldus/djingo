@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.forms import inlineformset_factory
-from .models import BingoBoard, BingoBoardItem
+from .models import BingoBoard, BingoBoardItem, BingoGame
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
@@ -32,3 +32,12 @@ BingoBoardItemFormSet = inlineformset_factory(
     validate_min=True,
     can_delete=True
 )
+
+class CreateGameForm(forms.ModelForm):
+    class Meta:
+        model = BingoGame
+        fields = ['board', 'has_free_square', 'board_size', 'win_condition']
+        widgets = {
+            'board_size': forms.RadioSelect,
+            'win_condition': forms.RadioSelect,
+        }
