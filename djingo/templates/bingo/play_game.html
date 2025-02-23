@@ -38,6 +38,55 @@
 </div>
 <div id="errorMessage" class="error-message" style="display: none;"></div>
 <div id="connectedPlayers" class="connected-players"></div>
+<!--EVENT-UI-HTML-->
+<div class="game-events">
+    <h3>Game Events</h3>
+    <div id="eventsList" class="events-list">
+        {% for event in events %}
+        <div class="event-item">
+            <span class="event-message">{{ event.message }}</span>
+            <span class="event-time">{{ event.created_at|timesince }} ago</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<!--EVENT-UI-HTML-->
+<!--EVENT-UI-STYLE-->
+<style>
+    .game-events {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .events-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .event-item {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+        font-size: 0.9em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .event-time {
+        color: #666;
+        font-size: 0.8em;
+    }
+    
+    .event-item:last-child {
+        border-bottom: none;
+    }
+</style>
+
+<!--EVENT-UI-STYLE-->
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
@@ -244,6 +293,40 @@ document.addEventListener('DOMContentLoaded', function() {
             gameActive = false;
             showWinner(state.winner);
         }
+        // Update events list
+        if (state.recent_events) {
+            const eventsList = document.getElementById('eventsList');
+            if (eventsList) {
+                eventsList.innerHTML = state.recent_events.map(event => `
+                    <div class="event-item">
+                        <span class="event-message">${event.message}</span>
+                        <span class="event-time">${timeAgo(new Date(event.created_at))}</span>
+                    </div>
+                `).join('');
+            }
+        }
+    }
+
+    // Simple time ago function
+    function timeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + " years ago";
+        
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + " months ago";
+        
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + " days ago";
+        
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + " hours ago";
+        
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + " minutes ago";
+        
+        return "just now";
     }
 
     function updateConnectedPlayers(players) {
@@ -275,6 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearPingInterval();
         clearTimeout(reconnectTimeout);
     });
+    
     async function clearBoard() {
     try {
         const playerId = document.getElementById('bingoBoard').dataset.playerId;
