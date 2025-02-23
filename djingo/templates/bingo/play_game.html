@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!gameActive) return;
         
         const cell = e.target.closest('.bingo-cell');
-        if (!cell || cell.classList.contains('covered')) return;
+        if (!cell) return; // || cell.classList.contains('covered')) return;
 
         const position = parseInt(cell.dataset.position);
         
@@ -82,6 +82,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.status === 'marked') {
                 cell.classList.add('covered');
+            } else if (data.status === 'already_marked') {
+                cell.classList.remove('covered');
             } else if (data.status === 'win') {
                 gameActive = false;
                 showWinner(data.winner);
@@ -273,7 +275,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearPingInterval();
         clearTimeout(reconnectTimeout);
     });
-
     async function clearBoard() {
     try {
         const playerId = document.getElementById('bingoBoard').dataset.playerId;
@@ -312,6 +313,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Error clearing board:', error);
     }
 }
+
 });
+
 </script>
 {% endblock %}

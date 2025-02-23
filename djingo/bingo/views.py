@@ -114,6 +114,10 @@ def mark_position(request, player_id):
         # Check if position is already covered
         if position in player.covered_positions:
             logger.debug(f"Position {position} already covered")
+            try:
+                player.covered_positions.remove(position)
+            except ValueError:
+                pass
             return JsonResponse({
                 'status': 'already_marked',
                 'positions': player.covered_positions
@@ -139,7 +143,7 @@ def mark_position(request, player_id):
                 logger.info(f"Player {player.name} has won!")
                 player.has_won = True
                 player.game.winner = player
-                player.game.is_active = False
+                #player.game.is_active = False
                 player.game.save()
                 player.save()
                 
@@ -172,13 +176,14 @@ def check_win_condition(covered_positions):
         # Diagonals
         [0,6,12,18,24], [4,8,12,16,20]
     ]
-
+    #winning_patterns = [ list(range(25)) ]
     covered_set = set(covered_positions)
     return any(all(pos in covered_set for pos in pattern) for pattern in winning_patterns)
 
 @require_http_methods(["POST"])
 def clear_board(request, player_id):
     try:
+        logger.info("Trying to clear board for player {player_id}")
         player = get_object_or_404(Player, id=player_id)
         
         # Reset player's board
@@ -188,11 +193,13 @@ def clear_board(request, player_id):
             player.covered_positions = []
             
         player.has_won = False
+        player.board_layout = player.game.generate_board_layout()
         player.save()
         
         return JsonResponse({
             'status': 'cleared',
-            'covered_positions': player.covered_positions
+            'covered_positions': player.covered_positions,
+            'board_items': list(player.board_layout)
         })
         
     except Player.DoesNotExist:
