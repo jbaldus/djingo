@@ -33,6 +33,44 @@
     }
 </style>
 
+
+<!--EVENT-UI-STYLE-->
+<style>
+    .game-events {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .events-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .event-item {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+        font-size: 0.9em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .event-time {
+        color: #666;
+        font-size: 0.8em;
+    }
+    
+    .event-item:last-child {
+        border-bottom: none;
+    }
+</style>
+
+<!--EVENT-UI-STYLE-->
+
 <div class="container">
     <div class="game-header">
         <h1>Bingo Game</h1>
@@ -75,7 +113,6 @@
 <div id="connectedPlayers" class="connected-players"></div>
 <!--EVENT-UI-HTML-->
 <div class="game-events">
-    <h3>Game Events</h3>
     <div id="eventsList" class="events-list">
         {% for event in events %}
         <div class="event-item">
@@ -86,42 +123,6 @@
     </div>
 </div>
 <!--EVENT-UI-HTML-->
-<!--EVENT-UI-STYLE-->
-<style>
-    .game-events {
-        max-width: 400px;
-        margin: 20px auto;
-        padding: 15px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .events-list {
-        max-height: 300px;
-        overflow-y: auto;
-    }
-    
-    .event-item {
-        padding: 8px;
-        border-bottom: 1px solid #eee;
-        font-size: 0.9em;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .event-time {
-        color: #666;
-        font-size: 0.8em;
-    }
-    
-    .event-item:last-child {
-        border-bottom: none;
-    }
-</style>
-
-<!--EVENT-UI-STYLE-->
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
