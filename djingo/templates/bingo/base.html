@@ -39,34 +39,6 @@
         }
 
         /* Game board styling */
-        .bingo-board {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            width: var(--grid-size);
-            height: var(--grid-size);
-            margin: 0 auto;
-            padding: 8px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .bingo-cell {
-            aspect-ratio: 1;
-            border: 2px solid var(--primary-color);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 8px;
-            font-size: calc(var(--grid-size) / 25);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-            user-select: none;
-        }
 
         .bingo-cell.covered {
             background: var(--primary-color);

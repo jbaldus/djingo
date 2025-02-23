@@ -2,6 +2,37 @@
 {% extends 'bingo/base.html' %}
 
 {% block content %}
+<style>
+    .bingo-board {
+        display: grid;
+        gap: 8px;
+        width: var(--grid-size);
+        height: var(--grid-size);
+        margin: 0 auto;
+        padding: 8px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .board-4x4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .board-5x5 {
+        grid-template-columns: repeat(5, 1fr);
+    }
+    
+    /* Update font sizes for different board sizes */
+    .board-4x4 .bingo-cell {
+        font-size: calc(var(--grid-size) / 20);
+    }
+    
+    .board-5x5 .bingo-cell {
+        font-size: calc(var(--grid-size) / 25);
+    }
+</style>
+
 <div class="container">
     <div class="game-header">
         <h1>Bingo Game</h1>
@@ -10,19 +41,23 @@
         </div>
     </div>
 
-    <div class="bingo-board" id="bingoBoard" data-player-id="{{ player.id }}">
-        {% for item in board_items %}
+    <div class="bingo-board board-{{ game.board_size }}x{{ game.board_size }}" 
+        id="bingoBoard" 
+        data-player-id="{{ player.id }}"
+        data-board-size="{{ game.board_size }}"
+        data-win-condition="{{ game.win_condition }}">
+    {% for item in board_items %}
         <div class="bingo-cell" 
-             data-position="{{ forloop.counter0 }}"
-             {% if forloop.counter0 in player.covered_positions %}
-             data-covered="true"
-             {% endif %}
-             {% if game.has_free_square and forloop.counter0 == 12 %}
-             data-free="true"
-             {% endif %}>
+                data-position="{{ forloop.counter0 }}"
+                {% if forloop.counter0 in player.covered_positions %}
+                data-covered="true"
+                {% endif %}
+                {% if game.has_free_square and game.board_size == 5 and forloop.counter0 == 12 %}
+                data-free="true"
+                {% endif %}>
             {{ item }}
         </div>
-        {% endfor %}
+    {% endfor %}
     </div>
 
     <div class="modal" id="winnerModal">

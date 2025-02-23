@@ -208,3 +208,17 @@ def clear_board(request, player_id):
     except Exception as e:
         logger.exception("Error clearing board")
         return JsonResponse({'error': str(e)}, status=500)
+
+
+def create_game(request):
+    if request.method == 'POST':
+        form = CreateGameForm(request.POST)
+        if form.is_valid():
+            game = form.save(commit=False)
+            game.creator = request.user
+            game.save()
+            return redirect('game_details', code=game.code)
+    else:
+        form = CreateGameForm()
+    
+    return render(request, 'bingo/create_game.html', {'form': form})
