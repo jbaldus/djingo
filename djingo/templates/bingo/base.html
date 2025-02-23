@@ -40,6 +40,33 @@
 
         /* Game board styling */
 
+
+        .bingo-cell {
+            aspect-ratio: 1;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8px;
+            font-size: calc(var(--grid-size) / 25);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            user-select: none;
+        }
+
+        .bingo-cell.covered {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .bingo-cell.free {
+            background: var(--secondary-color);
+            color: white;
+            font-weight: bold;
+        }
         .bingo-cell.covered {
             background: var(--primary-color);
             color: white;
