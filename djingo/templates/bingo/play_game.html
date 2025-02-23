@@ -184,6 +184,7 @@ async function clearBoard() {
                 if (!cell.classList.contains('free')) {
                     cell.classList.remove('covered');
                 }
+                cell.textContent = data.board_items[position]
             });
             
             // Close the winner modal
