@@ -25,10 +25,11 @@ SECRET_KEY = '_w+zs_ekfxhmu70cr_s+^9y!)yd1yhx9-xvrbfkw8b@)!!w%*2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["bingo.jbladddd.com", "localhost"]
+ALLOWED_HOSTS = ["bingo.jbladddd.com", "localhost", "btest.jbladddd.com"]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://bingo.jbladddd.com',
+    'https://btest.jbladddd.com',
 ]
 
 # Application definition
