@@ -91,3 +91,12 @@ class Player(models.Model):
                 name='unique_player_name_per_game'
             )
         ]
+        
+class GameEvent(models.Model):
+    game = models.ForeignKey(BingoGame, related_name='events', on_delete=models.CASCADE)
+    player = models.ForeignKey(Player, related_name='events', on_delete=models.CASCADE)
+    message = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

@@ -65,7 +65,8 @@ def play_game(request, player_id):
     return render(request, 'bingo/play_game.html', {
         'player': player,
         'game': player.game,
-        'board_items': list(player.board_layout)
+        'board_items': list(player.board_layout),
+        'events': player.game.events.select_related('player')[:10]
     })
 
 def login_view(request):

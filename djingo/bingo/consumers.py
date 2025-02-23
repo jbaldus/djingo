@@ -108,6 +108,20 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def update_player_connection_status(self, is_connected):
         Player.objects.filter(id=self.player_id).update(is_connected=is_connected)
+    
+    @database_sync_to_async
+    def create_event(self, player, message):
+        GameEvent.objects.create(
+            game=player.game,
+            player=player,
+            message=message
+        )
+
+    @database_sync_to_async
+    def get_recent_events(self, game, limit=10):
+        return list(game.events.select_related('player')
+                   .values('player__name', 'message', 'created_at')
+                   [:limit])
 
     @database_sync_to_async
     def mark_position(self, position):
@@ -118,8 +132,19 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
             return False
             
         if position not in player.covered_positions:
+            # Get the text for this position
+            board_items = json.loads(player.board_layout)
+            item_text = BingoBoardItem.objects.get(id=board_items[position]).text
+            
             player.covered_positions.append(position)
             player.save()
+            
+            # Create event
+            GameEvent.objects.create(
+                game=game,
+                player=player,
+                message=f"{player.name} marked '{item_text}'"
+            )
             
             # Check for win
             if self.check_win_condition(player.covered_positions):
@@ -128,6 +153,13 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                 game.is_active = False
                 game.save()
                 player.save()
+                
+                # Create win event
+                GameEvent.objects.create(
+                    game=game,
+                    player=player,
+                    message=f"{player.name} has won the game!"
+                )
                 return True
                 
         return False
