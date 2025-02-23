@@ -69,6 +69,14 @@ class BingoGame(models.Model):
         default='traditional'
     )
 
+    def generate_code(self):
+        # Generate a random 6-character code
+        chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+        while True:
+            code = ''.join(random.choice(chars) for _ in range(6))
+            if not BingoGame.objects.filter(code=code).exists():
+                return code
+
     def generate_board_layout(self):
         """Generate a randomized board layout based on board size"""
         items = list(self.board.items.all().values_list('id', flat=True))
