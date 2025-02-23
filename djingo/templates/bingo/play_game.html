@@ -438,5 +438,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
+// For debugging in console
+window.debugGame = {
+    clearBoard,
+    gameActive,
+    checkState: () => {
+        console.log('Game State:', {
+            gameActive,
+            boardElement: document.getElementById('bingoBoard'),
+            wsState: ws?.readyState,
+            coveredCells: document.querySelectorAll('.bingo-cell.covered').length
+        });
+    }
+};
+
 </script>
 {% endblock %}
