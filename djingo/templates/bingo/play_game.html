@@ -90,11 +90,89 @@
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
+    // Global variables and functions that need to be accessed from anywhere
+let gameActive = true;
+let ws = null;
+
+// Utility functions
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Game functions
+async function clearBoard() {
+    console.log('Starting clearBoard function'); // Debug log
+    try {
+        const board = document.getElementById('bingoBoard');
+        if (!board) {
+            console.error('Could not find bingoBoard element'); // Debug log
+            return;
+        }
+        
+        const playerId = board.dataset.playerId;
+        console.log('Clearing board for player:', playerId); // Debug log
+
+        const response = await fetch(`/api/game/${playerId}/clear/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+
+        console.log('Server response status:', response.status); // Debug log
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Server response data:', data); // Debug log
+        
+        if (data.status === 'cleared') {
+            // Reset all cells except free square
+            const cells = document.querySelectorAll('.bingo-cell');
+            cells.forEach(cell => {
+                const position = parseInt(cell.dataset.position);
+                if (!cell.classList.contains('free')) {
+                    cell.classList.remove('covered');
+                }
+            });
+            
+            // Close the winner modal
+            const modal = document.getElementById('winnerModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            
+            // Reset game state
+            gameActive = true;
+            console.log('Board cleared successfully'); // Debug log
+        }
+    } catch (error) {
+        console.error('Error in clearBoard:', error);
+        alert('Error clearing board. Check console for details.');
+    }
+}
+
+</script>
+<script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded'); // Debug log
     const board = document.getElementById('bingoBoard');
     const playerId = board.dataset.playerId;
     const cells = document.querySelectorAll('.bingo-cell');
-    let gameActive = true;
 
     // Initialize cells
     cells.forEach(cell => {
@@ -111,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!gameActive) return;
         
         const cell = e.target.closest('.bingo-cell');
-        if (!cell) return; // || cell.classList.contains('covered')) return;
+        if (!cell) return;
 
         const position = parseInt(cell.dataset.position);
         
@@ -358,46 +436,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearPingInterval();
         clearTimeout(reconnectTimeout);
     });
-    
-    async function clearBoard() {
-    try {
-        const playerId = document.getElementById('bingoBoard').dataset.playerId;
-        const response = await fetch(`/api/game/${playerId}/clear/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        });
-
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const data = await response.json();
-        
-        if (data.status === 'cleared') {
-            // Reset all cells except free square if it exists
-            const cells = document.querySelectorAll('.bingo-cell');
-            cells.forEach(cell => {
-                const position = parseInt(cell.dataset.position);
-                if (!cell.classList.contains('free')) {
-                    cell.classList.remove('covered');
-                }
-            });
-            
-            // Close the winner modal
-            const modal = document.getElementById('winnerModal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-            
-            // Reset game state
-            gameActive = true;
-        }
-    } catch (error) {
-        console.error('Error clearing board:', error);
-    }
-}
-
 });
 
 </script>
