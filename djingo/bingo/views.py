@@ -117,6 +117,7 @@ def mark_position(request, player_id):
             logger.debug(f"Position {position} already covered")
             try:
                 player.covered_positions.remove(position)
+                player.save()
             except ValueError:
                 pass
             return JsonResponse({
