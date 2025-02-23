@@ -85,7 +85,7 @@ class BingoGame(models.Model):
 
     def generate_board_layout(self):
         """Generate a randomized board layout based on board size"""
-        items = list(self.board.items.all().values_list('id', flat=True))
+        items = list(self.board.items.all().values_list('text', flat=True))
         random.shuffle(items)
         return items[:(self.board_size * self.board_size)]
 
