@@ -7,6 +7,48 @@ from .models import Player, BingoGame
 
 logger = logging.getLogger(__name__)
 
+
+class EventConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        logger.info(f"Attempting connection.")
+        logger.info(self.scope)
+        await self.channel_layer.group_add(
+            "BUTTS", self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            "BUTTS", self.channel_name
+        )
+
+
+    async def receive(self, text_data):
+        print(text_data)
+        text_data_json = json.loads(text_data)
+        message = text_data_json["message"]
+        await self.channel_layer.group_send(
+            "BUTTS",
+            {
+                "type": "chat_message",
+                "message": message,
+            }
+        )
+
+    async def chat_message(self, event):
+        print("CHAT MESSAGE")
+        print(event)
+        message = event['message']
+        message_html = f"<div hx-swap-oob='afterbegin:#eventsList'><p><b>INCOMING</b> <em>{message}</em></p></div>"
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "message": message_html,
+                }
+            )
+        )
+
+
 class BingoGameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         logger.info(f"Attempting connection for player_id: {self.scope['url_route']['kwargs'].get('player_id')}")
@@ -132,20 +174,26 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
             return False
             
         if position not in player.covered_positions:
-            # Get the text for this position
-            board_items = json.loads(player.board_layout)
-            item_text = BingoBoardItem.objects.get(id=board_items[position]).text
-            
+            action = "marked"
             player.covered_positions.append(position)
             player.save()
+        else:
+            action = "unmarked"
+            player.covered_positions.remove(position)
+            player.save()
+
+        # Get the text for this position
+        board_items = json.loads(player.board_layout)
+        item_text = BingoBoardItem.objects.get(id=board_items[position]).text
             
-            # Create event
-            GameEvent.objects.create(
-                game=game,
-                player=player,
-                message=f"{player.name} marked '{item_text}'"
-            )
+        # Create event
+        GameEvent.objects.create(
+            game=game,
+            player=player,
+            message=f"{player.name} {action} '{item_text}'"
+        )
             
+        if action == "marked":
             # Check for win
             if self.check_win_condition(player.covered_positions):
                 player.has_won = True
