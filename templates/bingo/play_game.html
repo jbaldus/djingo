@@ -2,6 +2,7 @@
 {% extends 'bingo/base.html' %}
 
 {% block content %}
+<div hx-ext="ws" ws-connect="/ws/game/{{ player.id }}/">
 <div class="container">
     <div class="game-header">
         <h1>Bingo Game</h1>
@@ -16,13 +17,20 @@
         data-board-size="{{ game.board_size }}"
         data-win-condition="{{ game.win_condition }}">
     {% for item in board_items %}
-        <div class="bingo-cell" 
+        <div class="bingo-cell {% if forloop.counter0 in player.covered_positions %}covered{% endif %}" 
+                id="cell-{{ forloop.counter0 }}"
                 data-position="{{ forloop.counter0 }}"
                 {% if forloop.counter0 in player.covered_positions %}
                 data-covered="true"
                 {% endif %}
                 {% if game.has_free_square and game.board_size == 5 and forloop.counter0 == 12 %}
                 data-free="true"
+                {% else %}
+                hx-trigger="click"
+                hx-swap="outerHTML"
+                hx-target="this"
+                hx-vals='{"type": "mark_position", "position": "{{ forloop.counter0 }}"}'
+                hx-ws="send"
                 {% endif %}>
             {{ item }}
         </div>
@@ -44,13 +52,7 @@
 <div id="connectedPlayers" class="connected-players"></div>
 <!--EVENT-UI-HTML-->
 <div class="game-events">
-    <div id="eventsList" class="events-list">
-        {% for event in events %}
-        <div class="event-item">
-            <span class="event-message">{{ event.message }}</span>
-            <span class="event-time">{{ event.created_at|timesince }} ago</span>
-        </div>
-        {% endfor %}
-    </div>
+    <div id="eventsList" class="events-list"></div>
+</div>
 </div>
 {% endblock %}

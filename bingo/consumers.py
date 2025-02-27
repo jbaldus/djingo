@@ -1,53 +1,14 @@
 # bingo/consumers.py
 import json
 import logging
+from asgiref.sync import async_to_sync
+from django.template.loader import render_to_string
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import Player, BingoGame
+from .models import Player, BingoGame, GameEvent
+import traceback
 
 logger = logging.getLogger(__name__)
-
-
-class EventConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        logger.info(f"Attempting connection.")
-        logger.info(self.scope)
-        await self.channel_layer.group_add(
-            "BUTTS", self.channel_name
-        )
-        await self.accept()
-
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            "BUTTS", self.channel_name
-        )
-
-
-    async def receive(self, text_data):
-        print(text_data)
-        text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
-        await self.channel_layer.group_send(
-            "BUTTS",
-            {
-                "type": "chat_message",
-                "message": message,
-            }
-        )
-
-    async def chat_message(self, event):
-        print("CHAT MESSAGE")
-        print(event)
-        message = event['message']
-        message_html = f"<div hx-swap-oob='afterbegin:#eventsList'><p><b>INCOMING</b> <em>{message}</em></p></div>"
-        await self.send(
-            text_data=json.dumps(
-                {
-                    "message": message_html,
-                }
-            )
-        )
-
 
 class BingoGameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -100,11 +61,14 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         try:
             data = json.loads(text_data)
             message_type = data.get('type')
-            
+            print(f"Player {self.player} sends {message_type}")
             if message_type == 'mark_position':
                 position = data.get('position')
                 if position is not None:
-                    winner = await self.mark_position(position)
+                    rendered_html = await self.mark_position(position)
+                    await self.send(rendered_html)
+                    winner = self.check_win_condition(self.player.covered_positions)
+                    print(f"IS WINNER?: {winner}")
                     if winner:
                         # Notify all players about the winner
                         await self.channel_layer.group_send(
@@ -114,6 +78,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                                 'winner': self.player.name
                             }
                         )
+        
             elif message_type == 'request_state':
                 await self.send_game_state()
                 
@@ -129,10 +94,27 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
 
     async def winner_announcement(self, event):
         # Send winner announcement to WebSocket
+        print(f"WINNER: {event['winner']}")
         await self.send(text_data=json.dumps({
             'type': 'winner',
             'winner': event['winner']
         }))
+
+    async def player_event(self, event):
+        rendered_html = f'<div hx-swap-oob="afterbegin:#eventsList"><div class="event-item"><span class="event-message">{event['message']}</span></div></div>'
+        if event.get("sender") != self.channel_layer:
+            await self.send(rendered_html)
+
+    @database_sync_to_async
+    def create_event(self, player, message):
+        async_to_sync(self.channel_layer.group_send)(
+            self.game_group_name,
+            {
+                'type': 'player_event',
+                'message': message,
+                'sender': self.channel_name,
+            }
+        )
 
     @database_sync_to_async
     def get_player(self):
@@ -151,13 +133,6 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
     def update_player_connection_status(self, is_connected):
         Player.objects.filter(id=self.player_id).update(is_connected=is_connected)
     
-    @database_sync_to_async
-    def create_event(self, player, message):
-        GameEvent.objects.create(
-            game=player.game,
-            player=player,
-            message=message
-        )
 
     @database_sync_to_async
     def get_recent_events(self, game, limit=10):
@@ -169,6 +144,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
     def mark_position(self, position):
         player = Player.objects.get(id=self.player_id)
         game = player.game
+        position = int(position)
         
         if not game.is_active or player.has_won:
             return False
@@ -181,36 +157,23 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
             action = "unmarked"
             player.covered_positions.remove(position)
             player.save()
+        
+        cell = {
+            'position': position,
+            'covered': position in player.covered_positions,
+            'text': player.board_layout[position],
+            'free': (position == 12 and game.has_free_square and game.size == 5),
+        }
 
-        # Get the text for this position
-        board_items = json.loads(player.board_layout)
-        item_text = BingoBoardItem.objects.get(id=board_items[position]).text
-            
+        
         # Create event
-        GameEvent.objects.create(
-            game=game,
+        async_to_sync(self.create_event)(
             player=player,
-            message=f"{player.name} {action} '{item_text}'"
+            message=f"{player.name} {action} '{player.board_layout[position]}'"
         )
-            
-        if action == "marked":
-            # Check for win
-            if self.check_win_condition(player.covered_positions):
-                player.has_won = True
-                game.winner = player
-                game.is_active = False
-                game.save()
-                player.save()
-                
-                # Create win event
-                GameEvent.objects.create(
-                    game=game,
-                    player=player,
-                    message=f"{player.name} has won the game!"
-                )
-                return True
-                
-        return False
+
+        rendered_html = render_to_string('bingo/partials/bingo_cell.html', cell) 
+        return rendered_html  
 
     @database_sync_to_async
     def get_game_state(self):
