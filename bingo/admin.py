@@ -106,6 +106,9 @@ class BingoBoardAdmin(admin.ModelAdmin):
                 elif file_format == 'json':
                     data = json.load(file)
                     items = [item['text'] for item in data.get('items', [])]
+                elif file_format == 'txt':
+                    decoded_file = file.read().decode('utf-8').splitlines()
+                    items = [line for lines in decoded_file if line]
                 else:
                     raise ValidationError('Invalid file format')
 

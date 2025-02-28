@@ -35,6 +35,9 @@ class BingoBoardItem(models.Model):
     board = models.ForeignKey(BingoBoard, related_name='items', on_delete=models.CASCADE)
     text = models.CharField(max_length=200)
     position = models.IntegerField(null=True, blank=True)
+    # is_suggestion = models.BooleanField(default=False)
+    # suggestor = models.CharField(max_length=50, default=None)
+    # created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         constraints = [
