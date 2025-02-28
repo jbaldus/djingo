@@ -42,7 +42,7 @@ body {
     justify-content: center;
     text-align: center;
     padding: 8px;
-    font-size: calc(var(--grid-size) / 25);
+    font-size: clamp(var(--grid-size)/45, 1vw, var(--grid-size)/25);
     cursor: pointer;
     transition: all 0.3s ease;
     background: white;
@@ -151,11 +151,11 @@ body {
 
 /* Update font sizes for different board sizes */
 .board-4x4 .bingo-cell {
-    font-size: calc(var(--grid-size) / 30);
+    font-size: clamp(var(--grid-size)/45, 1vw, var(--grid-size)/25);
 }
 
 .board-5x5 .bingo-cell {
-    font-size: calc(var(--grid-size) / 30);
+    font-size: clamp(var(--grid-size)/45, 1vw, var(--grid-size)/25);
 }
 
 .game-events {
@@ -209,6 +209,6 @@ body {
 
     .bingo-cell {
         padding: 2px;
-        font-size: calc(var(--grid-size) / 30);
+        font-size: clamp(var(--grid-size)/45, 1vw, var(--grid-size)/25);
     }
 }
