@@ -59,13 +59,15 @@ def join_game(request, code):
 
 def play_game(request, player_id):
     player = get_object_or_404(Player, id=player_id)
-    if not player.game.is_active and not player.has_won:
+    game = player.game
+    if not game.is_active and not player.has_won:
         return redirect('home')
     
     return render(request, 'bingo/play_game.html', {
         'player': player,
-        'game': player.game,
+        'game': game,
         'board_items': list(player.board_layout),
+        'board_positions': range(game.board_size*game.board_size)
     })
 
 def login_view(request):

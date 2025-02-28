@@ -120,6 +120,7 @@ class BingoGame(models.Model):
         winning_patterns.append(list(range(size - 1, size * (size - 1) + 1, size - 1)))  # Top-right to bottom-left
         
         covered_set = set(covered_positions)
+
         return any(all(pos in covered_set for pos in pattern) for pattern in winning_patterns)
 
 class Player(models.Model):

@@ -1,0 +1,25 @@
+<div class="modal" 
+     id="winnerModal"
+     style="display: flex;"
+     hx-target="#winnerModal">
+    <script>
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+    </script>
+    <div class="modal-content">
+        <h2>We Have a Winner!</h2>
+        <p id="winnerMessage"></p>
+        <div class="modal-buttons">
+            <button class="button button-primary" 
+            
+    hx-trigger="click"
+    hx-vals='{"type": "clear_board"}'
+    hx-ws="send"
+    hx-on:after-request="window.location.reload()">Play Again</button>
+            <button class="button button-secondary" onclick="window.location='/'">Home</button>
+        </div>
+    </div>
+</div>

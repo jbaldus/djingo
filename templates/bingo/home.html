@@ -52,6 +52,7 @@
                             <p>Status: {% if game.is_active %}Active{% else %}Ended{% endif %}</p>
                             <p>Players: {{ game.players.count }}</p>
                             {% if game.is_active %}
+                                <a href="/play/{{ game.code }}"><button class="button button-primary">Play Game</button></a>
                                 <button class="button" onclick="endGame({{ game.id }})">End Game</button>
                             {% endif %}
                         </div>
