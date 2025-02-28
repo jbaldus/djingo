@@ -1,132 +1,4 @@
-{# templates/bingo/play_game.html #}
-{% extends 'bingo/base.html' %}
-
-{% block content %}
-<style>
-    .bingo-board {
-        display: grid;
-        gap: 8px;
-        width: var(--grid-size);
-        height: var(--grid-size);
-        margin: 0 auto;
-        padding: 8px;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    .board-4x4 {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    
-    .board-5x5 {
-        grid-template-columns: repeat(5, 1fr);
-    }
-    
-    /* Update font sizes for different board sizes */
-    .board-4x4 .bingo-cell {
-        font-size: calc(var(--grid-size) / 30);
-    }
-    
-    .board-5x5 .bingo-cell {
-        font-size: calc(var(--grid-size) / 30);
-    }
-</style>
-
-
-<!--EVENT-UI-STYLE-->
-<style>
-    .game-events {
-        max-width: 400px;
-        margin: 20px auto;
-        padding: 15px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .events-list {
-        max-height: 300px;
-        overflow-y: auto;
-    }
-    
-    .event-item {
-        padding: 8px;
-        border-bottom: 1px solid #eee;
-        font-size: 0.9em;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .event-time {
-        color: #666;
-        font-size: 0.8em;
-    }
-    
-    .event-item:last-child {
-        border-bottom: none;
-    }
-</style>
-
-<!--EVENT-UI-STYLE-->
-
-<div class="container">
-    <div class="game-header">
-        <h1>Bingo Game</h1>
-        <div class="player-info">
-            Playing as: <strong>{{ player.name }}</strong>
-        </div>
-    </div>
-
-    <div class="bingo-board board-{{ game.board_size }}x{{ game.board_size }}" 
-        id="bingoBoard" 
-        data-player-id="{{ player.id }}"
-        data-board-size="{{ game.board_size }}"
-        data-win-condition="{{ game.win_condition }}">
-    {% for item in board_items %}
-        <div class="bingo-cell" 
-                data-position="{{ forloop.counter0 }}"
-                {% if forloop.counter0 in player.covered_positions %}
-                data-covered="true"
-                {% endif %}
-                {% if game.has_free_square and game.board_size == 5 and forloop.counter0 == 12 %}
-                data-free="true"
-                {% endif %}>
-            {{ item }}
-        </div>
-    {% endfor %}
-    </div>
-
-    <div class="modal" id="winnerModal">
-        <div class="modal-content">
-            <h2>We Have a Winner!</h2>
-            <p id="winnerMessage"></p>
-            <div class="modal-buttons">
-                <button class="button button-primary" onclick="clearBoard()">Play Again</button>
-                <button class="button button-secondary" onclick="window.location='/'">Home</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="errorMessage" class="error-message" style="display: none;"></div>
-<div id="connectedPlayers" class="connected-players"></div>
-<!--EVENT-UI-HTML-->
-<div class="game-events">
-    <div id="eventsList" class="events-list">
-        {% for event in events %}
-        <div class="event-item">
-            <span class="event-message">{{ event.message }}</span>
-            <span class="event-time">{{ event.created_at|timesince }} ago</span>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-<!--EVENT-UI-HTML-->
-
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script>
-    // Global variables and functions that need to be accessed from anywhere
+// Global variables and functions that need to be accessed from anywhere
 let gameActive = true;
 let ws = null;
 
@@ -203,8 +75,6 @@ async function clearBoard() {
     }
 }
 
-</script>
-<script>
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded'); // Debug log
     const board = document.getElementById('bingoBoard');
@@ -489,6 +359,3 @@ window.debugGame = {
         });
     }
 };
-
-</script>
-{% endblock %}

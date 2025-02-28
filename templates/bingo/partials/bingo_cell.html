@@ -1,0 +1,17 @@
+<div class="bingo-cell {% if covered %}covered{% endif %}" 
+    id="cell-{{ position }}"
+    data-position="{{ position }}"
+    {% if covered %}
+    data-covered="true"
+    {% endif %}
+    {% if free %}
+    data-free="true"
+    {% else %}
+    hx-trigger="click"
+    hx-swap="outerHTML"
+    hx-target="this"
+    hx-vals='{"type": "mark_position", "position": "{{ position }}"}'
+    hx-ws="send"
+    {% endif %}>
+{{ text }}
+</div>

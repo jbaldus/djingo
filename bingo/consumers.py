@@ -1,6 +1,8 @@
 # bingo/consumers.py
 import json
 import logging
+from asgiref.sync import async_to_sync
+from django.template.loader import render_to_string
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import Player, BingoGame
@@ -58,22 +60,36 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         try:
             data = json.loads(text_data)
             message_type = data.get('type')
-            
             if message_type == 'mark_position':
+                player = await self.get_player()
                 position = data.get('position')
                 if position is not None:
-                    winner = await self.mark_position(position)
+                    rendered_html = await self.mark_position(position)
+                    await self.send(rendered_html)
+                    winner = await self.check_win_condition()
                     if winner:
                         # Notify all players about the winner
-                        await self.channel_layer.group_send(
-                            self.game_group_name,
-                            {
-                                'type': 'winner_announcement',
-                                'winner': self.player.name
-                            }
+                        # await self.channel_layer.group_send(
+                        #     self.game_group_name,
+                        #     {
+                        #         'type': 'winner_announcement',
+                        #         'winner': self.player.name
+                        #     }
+                        # )
+                        await self.create_event(
+                            player=player,
+                            message=f"{player.name} has won the game!! 🎉<br/>You can keep playing, though."
                         )
+                        rendered_html = render_to_string("bingo/partials/winner_modal.html")
+                        await self.send(rendered_html)
+        
             elif message_type == 'request_state':
                 await self.send_game_state()
+            elif message_type == 'clear_board':
+                await self.clear_board()
+                # Render a new board
+                rendered_html : str = '<div id="winnerModal" hx-target="#winnerModal"><script>window.location.reload()</script></div>'
+                await self.send(rendered_html)
                 
         except json.JSONDecodeError:
             await self.send(text_data=json.dumps({
@@ -92,10 +108,26 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
             'winner': event['winner']
         }))
 
+    async def player_event(self, event):
+        rendered_html = f'<div hx-swap-oob="afterbegin:#eventsList"><div class="event-item"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
+        if event.get("sender") != self.channel_name: #TODO: allow player to choose to see their messages or not
+            await self.send(rendered_html)
+
+    @database_sync_to_async
+    def create_event(self, player, message):
+        async_to_sync(self.channel_layer.group_send)(
+            self.game_group_name,
+            {
+                'type': 'player_event',
+                'message': message,
+                'sender': self.channel_name,
+            }
+        )
+
     @database_sync_to_async
     def get_player(self):
         try:
-            player = Player.objects.select_related('game').get(id=self.player_id)
+            player: Player = Player.objects.select_related('game').get(id=self.player_id)
             logger.info(f"Found player: {player.name} for game: {player.game.code}")
             return player
         except Player.DoesNotExist:
@@ -109,60 +141,53 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
     def update_player_connection_status(self, is_connected):
         Player.objects.filter(id=self.player_id).update(is_connected=is_connected)
     
-    @database_sync_to_async
-    def create_event(self, player, message):
-        GameEvent.objects.create(
-            game=player.game,
-            player=player,
-            message=message
-        )
 
     @database_sync_to_async
-    def get_recent_events(self, game, limit=10):
-        return list(game.events.select_related('player')
-                   .values('player__name', 'message', 'created_at')
-                   [:limit])
+    def clear_board(self):
+        player : Player = Player.objects.select_related('game').get(id=self.player_id)
+        game : BingoGame = player.game
+        player.board_layout = game.generate_board_layout()
+        player.covered_positions = []
+        if game.has_free_square and game.get_center_position():
+            player.covered_positions = [ game.get_center_position() ]
+            player.board_layout[game.get_center_position()] = "FREE"
+        player.has_won = False
+        player.save()
+
 
     @database_sync_to_async
     def mark_position(self, position):
         player = Player.objects.get(id=self.player_id)
         game = player.game
+        position = int(position)
         
         if not game.is_active or player.has_won:
             return False
             
         if position not in player.covered_positions:
-            # Get the text for this position
-            board_items = json.loads(player.board_layout)
-            item_text = BingoBoardItem.objects.get(id=board_items[position]).text
-            
+            action = "marked"
             player.covered_positions.append(position)
             player.save()
-            
-            # Create event
-            GameEvent.objects.create(
-                game=game,
-                player=player,
-                message=f"{player.name} marked '{item_text}'"
-            )
-            
-            # Check for win
-            if self.check_win_condition(player.covered_positions):
-                player.has_won = True
-                game.winner = player
-                game.is_active = False
-                game.save()
-                player.save()
-                
-                # Create win event
-                GameEvent.objects.create(
-                    game=game,
-                    player=player,
-                    message=f"{player.name} has won the game!"
-                )
-                return True
-                
-        return False
+        else:
+            action = "unmarked"
+            player.covered_positions.remove(position)
+            player.save()
+        
+        cell = {
+            'position': position,
+            'covered': position in player.covered_positions,
+            'text': player.board_layout[position],
+            'free': (position == 12 and game.has_free_square and game.size == 5),
+        }
+
+        # Create event
+        async_to_sync(self.create_event)(
+            player=player,
+            message=f"{player.name} {action} '{player.board_layout[position]}'"
+        )
+
+        rendered_html = render_to_string('bingo/partials/bingo_cell.html', cell) 
+        return rendered_html  
 
     @database_sync_to_async
     def get_game_state(self):
@@ -183,6 +208,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         state = await self.get_game_state()
         await self.send(text_data=json.dumps(state))
 
-    def check_win_condition(self, covered_positions):
-        game = self.player.game
-        return game.check_win_condition(covered_positions)
+    async def check_win_condition(self):
+        player = await self.get_player()
+        game = player.game
+        return game.check_win_condition(player.covered_positions)

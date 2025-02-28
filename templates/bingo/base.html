@@ -1,0 +1,18 @@
+{# templates/bingo/base.html #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bingo Game{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'bingo/css/style.css' %}" >
+    <!--<script src="{% static 'bingo/js/script.js' %}"></script>-->
+    <script src="https://unpkg.com/htmx.org@2.0.4" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx-ext-ws@2.0.2" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html> 
