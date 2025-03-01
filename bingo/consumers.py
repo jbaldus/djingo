@@ -108,8 +108,9 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         }))
 
     async def player_event(self, event):
+        player : Player = await self.get_player()
         rendered_html = f'<div hx-swap-oob="afterbegin:#eventsList"><div class="event-item"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
-        if event.get("sender") != self.channel_name: #TODO: allow player to choose to see their messages or not
+        if event.get("sender") != self.channel_name or player.show_own_events: 
             await self.send(rendered_html)
 
     async def start_new_game(self):
