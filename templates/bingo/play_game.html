@@ -6,7 +6,7 @@
 <div id="websocket-connection" hx-ext="ws" ws-connect="/ws/game/{{ player.id }}/">
 <div class="container">
     <div class="game-header">
-        <h1>Bingo Game</h1>
+        <h1>WGI Bingo</h1>
         <div class="player-info">
             Playing as: <strong>{{ player.name }}</strong>
         </div>
@@ -23,14 +23,13 @@
         {% endfor %}
     </div>
 
-    <div id="winnerModal">
+    <div id="winnerModal"></div>
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+    <div id="connectedPlayers" class="connected-players"></div>
+    <div class="game-events">
+        <div id="eventsList" class="events-list"></div>
     </div>
-</div>
-<div id="errorMessage" class="error-message" style="display: none;"></div>
-<div id="connectedPlayers" class="connected-players"></div>
-<!--EVENT-UI-HTML-->
-<div class="game-events">
-    <div id="eventsList" class="events-list"></div>
-</div>
+    <p class="made-with-love">Made with ❤️ for winterguards and the amazing things they do by Jason Baldus. Go Reeths-Puffer!</p>
+    </div>
 </div>
 {% endblock %}

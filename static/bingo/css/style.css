@@ -182,6 +182,12 @@ body {
     border-bottom: none;
 }
 
+.made-with-love {
+    font-size: 0.8em;
+    position: absolute;
+    bottom: 0;
+}
+
 @media (max-width: 600px) {
     :root {
         --grid-size: 95vw;
