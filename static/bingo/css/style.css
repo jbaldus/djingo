@@ -9,7 +9,7 @@
 body {
     font-family: 'Segoe UI', system-ui, sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 2px;
     background: var(--background-color);
     color: var(--text-color);
 }
@@ -23,12 +23,16 @@ body {
 
 .game-header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 2px;
+}
+
+.game-header h1 {
+    margin-top: 5px;
 }
 
 .player-info {
     font-size: 1.2em;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
 }
 
 /* Game board styling */
@@ -189,7 +193,8 @@ body {
     margin: 0 auto;
     position: fixed;
     bottom: 0;
-    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 @media (max-width: 600px) {
