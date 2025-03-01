@@ -18,6 +18,7 @@ body {
     max-width: 800px;
     margin: 0 auto;
     padding: 2px;
+    position: relative;
 }
 
 .game-header {
@@ -184,8 +185,12 @@ body {
 
 .made-with-love {
     font-size: 0.8em;
-    position: absolute;
+    background-color: var(--background-color);
+    margin: 0 auto;
+    position: fixed;
     bottom: 0;
+    left: 0;
+    width: 100%;
 }
 
 @media (max-width: 600px) {
