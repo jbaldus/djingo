@@ -1,10 +1,11 @@
 # bingo/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_http_methods
-from .models import BingoGame, BingoBoard, Player
+from .models import BingoGame, BingoBoard, Player, BingoBoardItem
 from .forms import LoginForm, PlayerNameForm
 import json
 import logging
@@ -32,6 +33,7 @@ def join_game(request, code):
         form = PlayerNameForm(request.POST)
         if form.is_valid():
             name = form.cleaned_data['name']
+            use_suggested_items = form.cleaned_data['use_suggested_items']
 
             # Check for existing player
             existing_player = Player.objects.filter(name=name, game=game).first()
@@ -42,8 +44,9 @@ def join_game(request, code):
             player = Player.objects.create(
                 game=game,
                 name=form.cleaned_data['name'],
-                board_layout=game.generate_board_layout(),
-                covered_positions=[12] if game.has_free_square else []
+                board_layout=game.generate_board_layout(use_suggested_items),
+                covered_positions=[12] if game.has_free_square else [],
+                use_suggested_items=use_suggested_items,
             )
             
             response = redirect('play_game', player_id=player.id)
@@ -128,3 +131,22 @@ def create_game(request):
         form = CreateGameForm()
     
     return render(request, 'bingo/create_game.html', {'form': form})
+
+@staff_member_required
+def review_suggestions(request):
+    items = BingoBoardItem.objects.exclude(suggested_by='').filter(approved__isnull=True)
+    return render(request, 'admin/bingo/review_suggestions.html', {'items': items})
+
+@staff_member_required
+def approve_item(request, item_id):
+    item = BingoBoardItem.objects.get(id=item_id)
+    item.approved = True
+    item.save()
+    return HttpResponse('')
+
+@staff_member_required
+def deny_item(request, item_id):
+    item = BingoBoardItem.objects.get(id=item_id)
+    item.approved = False
+    item.save()
+    return HttpResponse('')

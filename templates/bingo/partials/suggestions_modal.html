@@ -1,0 +1,14 @@
+<div class="modal" 
+     id="winnerModal"
+     style="display: flex;"
+     hx-target="#winnerModal">
+    <div class="modal-content">
+        <h2>Suggest New Squares</h2>
+        <p id="suggestionMessage">If you would like to add suggestions for bingo boxes that might make it into future games, you can add up to 3 suggestions below. Remember that we are all fans of guard and we want to keep the squares positive.</p>
+        <form id="suggestion-form" ws-send>
+            <input type="hidden" name="type" value="submit_suggestions" >
+            {{ form.as_p }}
+            <button class="button button-primary" type="submit">Submit Suggestions &amp; Play Again</button>
+        </form>
+    </div>
+</div>

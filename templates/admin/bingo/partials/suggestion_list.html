@@ -1,0 +1,19 @@
+{% for item in items %}
+    <div id="item-{{ item.id }}">
+        <p>{{ item.text }} (Suggested by: {{ item.suggested_by }})</p>
+        <button hx-post="{% url 'approve_item' item.id %}"
+                hx-target="#item-{{ item.id }}"
+                hx-swap="outerHTML"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+            Accept
+        </button>
+        <button hx-post="{% url 'deny_item' item.id %}"
+                hx-target="#item-{{ item.id }}"
+                hx-swap="outerHTML"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+            Deny
+        </button>
+    </div>
+{% empty %}
+    <p>No suggestions to review.</p>
+{% endfor %}

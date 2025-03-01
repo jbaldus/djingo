@@ -14,12 +14,14 @@
         <p id="winnerMessage"></p>
         <div class="modal-buttons">
             <button class="button button-primary" 
-            
-    hx-trigger="click"
-    hx-vals='{"type": "clear_board"}'
-    hx-ws="send"
-    hx-on:after-request="window.location.reload()">Play Again</button>
-            <button class="button button-secondary" onclick="window.location='/'">Home</button>
+                    hx-trigger="click"
+                    hx-vals='{"type": "clear_board"}'
+                    hx-ws="send"
+                    hx-on:after-request="window.location.reload()">Play Again</button>
+            <button class="button button-secondary" 
+                    hx-trigger="click"
+                    hx-vals='{"type": "make_suggestions"}'
+                    hx-ws="send">Suggest New Squares</button>
         </div>
     </div>
 </div>

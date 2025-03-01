@@ -1,0 +1,13 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+    <script src="{% static 'vendor/htmx.org@2.0.4.js' %}" ></script>
+{% endblock %}
+
+{% block content %}
+    <h1>Review Bingo Board Suggestions</h1>
+    <div id="suggestion-list">
+        {% include "admin/bingo/partials/suggestion_list.html" %}
+    </div>
+{% endblock %}
