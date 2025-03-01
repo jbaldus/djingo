@@ -5,7 +5,7 @@ const isTooBig = (element) => isTooTall(element) || isTooWide(element)
 function adjustFontSize(element) {
     element.style.fontSize = '100px';
     let fontSize = window.getComputedStyle(element).fontSize.slice(0,-2) ;
-    let minSize = 12 ;
+    let minSize = 10 ;
     while (isTooBig(element.parentElement) && fontSize > minSize) {
         fontSize-- ;
         element.style.fontSize = `${fontSize}px`
