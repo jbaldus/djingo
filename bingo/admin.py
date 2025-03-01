@@ -76,8 +76,7 @@ class BingoBoardAdmin(admin.ModelAdmin):
         for item in board.items.all():
             BingoBoardItem.objects.create(
                 board=new_board,
-                text=item.text,
-                position=item.position
+                text=item.text
             )
         
         messages.success(request, f"Successfully duplicated board '{board.name}'")
@@ -108,7 +107,7 @@ class BingoBoardAdmin(admin.ModelAdmin):
                     items = [item['text'] for item in data.get('items', [])]
                 elif file_format == 'txt':
                     decoded_file = file.read().decode('utf-8').splitlines()
-                    items = [line for lines in decoded_file if line]
+                    items = [line for line in decoded_file if line.strip() != ""]
                 else:
                     raise ValidationError('Invalid file format')
 
@@ -122,11 +121,11 @@ class BingoBoardAdmin(admin.ModelAdmin):
                 )
 
                 # Create board items
-                for index, text in enumerate(items):
+                for text in items:
+                    print(text)
                     BingoBoardItem.objects.create(
                         board=board,
                         text=text,
-                        position=index
                     )
 
                 messages.success(request, f'Successfully imported board "{board_name}" with {len(items)} items')
@@ -154,10 +153,10 @@ class BingoBoardAdmin(admin.ModelAdmin):
         response['Content-Disposition'] = f'attachment; filename="bingo_board_{board.name}_{datetime.now().strftime("%Y%m%d")}.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(['position', 'text'])
+        writer.writerow(['text', 'suggested_by'])
         
-        for item in board.items.all().order_by('position'):
-            writer.writerow([item.position, item.text])
+        for item in board.items.all():
+            writer.writerow([item.text, item.suggested_by])
 
         return response
 
@@ -172,10 +171,10 @@ class BingoBoardAdmin(admin.ModelAdmin):
             'creator': board.creator.username,
             'items': [
                 {
-                    'position': item.position,
-                    'text': item.text
+                    'text': item.text,
+                    'suggested_by': item.suggested_by
                 }
-                for item in board.items.all().order_by('position')
+                for item in board.items.all()
             ]
         }
 

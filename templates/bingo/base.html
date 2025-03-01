@@ -4,12 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Bingo Game{% endblock %}</title>
+    <title>{% block title %}Winter Guard Bingo{% endblock %}</title>
     {% load static %}
-    <script src="https://unpkg.com/htmx.org@2.0.4" crossorigin="anonymous"></script>
+    <!--<script src="https://unpkg.com/htmx.org@2.0.4" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/htmx-ext-ws@2.0.2" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-    
+-->
+    <script src="{% static 'vendor/htmx.org@2.0.4.js' %}" ></script>
+    <script src="{% static 'vendor/htmx-ext-ws@2.0.2.js' %}" ></script>
+    <script src="{% static 'vendor/confetti.browser.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'bingo/css/style.css' %}" >
     <script src="{% static 'bingo/js/script.js' %}"></script>
 </head>

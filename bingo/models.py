@@ -1,5 +1,6 @@
 # models.py
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinLengthValidator
 import random
@@ -33,19 +34,22 @@ class BingoBoard(models.Model):
 
 class BingoBoardItem(models.Model):
     board = models.ForeignKey(BingoBoard, related_name='items', on_delete=models.CASCADE)
-    text = models.CharField(max_length=200)
-    position = models.IntegerField(null=True, blank=True)
-    # is_suggestion = models.BooleanField(default=False)
-    # suggestor = models.CharField(max_length=50, default=None)
-    # created_at = models.DateTimeField(auto_now_add=True)
+    text = models.CharField(max_length=64)
+    # position = models.IntegerField(null=True, blank=True)
+    suggested_by = models.CharField(max_length=50, default="")
+    approved = models.BooleanField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.text
     
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['board', 'position'],
-                name='unique_position_per_board'
-            )
-        ]
+    # class Meta:
+    #     constraints = [
+    #         models.UniqueConstraint(
+    #             fields=['board', 'position'],
+    #             name='unique_position_per_board'
+    #         )
+    #     ]
 
 class BingoGame(models.Model):
     BOARD_SIZE_CHOICES = [
@@ -73,10 +77,10 @@ class BingoGame(models.Model):
     )
 
     def generate_code(self):
-        # Generate a random 6-character code
+        # Generate a random 3-character code
         chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
         while True:
-            code = ''.join(random.choice(chars) for _ in range(6))
+            code = ''.join(random.choice(chars) for _ in range(3))
             if not BingoGame.objects.filter(code=code).exists():
                 return code
     
@@ -86,9 +90,12 @@ class BingoGame(models.Model):
         super().save(*args, **kwargs)
 
 
-    def generate_board_layout(self):
+    def generate_board_layout(self, use_suggested_items=True):
         """Generate a randomized board layout based on board size"""
-        items = list(self.board.items.all().values_list('text', flat=True))
+        if use_suggested_items:
+            items = list(self.board.items.filter(Q(suggested_by='') | Q(approved=True)).values_list('text', flat=True))
+        else:
+            items = list(self.board.items.filter(suggested_by='').values_list('text', flat=True))
         random.shuffle(items)
         return items[:(self.board_size * self.board_size)]
 
@@ -135,6 +142,9 @@ class Player(models.Model):
     is_connected = models.BooleanField(default=False)
     last_seen = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    #preferences
+    show_own_events = models.BooleanField(default=True)
+    use_suggested_items = models.BooleanField(default=True)
 
     class Meta:
         constraints = [
@@ -144,11 +154,3 @@ class Player(models.Model):
             )
         ]
         
-class GameEvent(models.Model):
-    game = models.ForeignKey(BingoGame, related_name='events', on_delete=models.CASCADE)
-    player = models.ForeignKey(Player, related_name='events', on_delete=models.CASCADE)
-    message = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_at']

@@ -177,6 +177,14 @@ wheels = [
 ]
 
 [[package]]
+name = "django-charsleft-widget"
+version = "0.1.0"
+source = { git = "https://github.com/timmyomahony/django-charsleft-widget.git#5a45920237aeb7413cca77acd5643a3fa816c0d0" }
+dependencies = [
+    { name = "django" },
+]
+
+[[package]]
 name = "djangorestframework"
 version = "3.15.2"
 source = { registry = "https://pypi.org/simple" }
@@ -197,6 +205,7 @@ dependencies = [
     { name = "channels-redis" },
     { name = "daphne" },
     { name = "django" },
+    { name = "django-charsleft-widget" },
     { name = "djangorestframework" },
     { name = "redis" },
     { name = "whitenoise" },
@@ -208,6 +217,7 @@ requires-dist = [
     { name = "channels-redis", specifier = ">=4.2.1" },
     { name = "daphne", specifier = ">=4.1.2" },
     { name = "django", specifier = ">=5.1.6" },
+    { name = "django-charsleft-widget", git = "https://github.com/timmyomahony/django-charsleft-widget.git" },
     { name = "djangorestframework", specifier = ">=3.15.2" },
     { name = "redis", specifier = ">=5.2.1" },
     { name = "whitenoise", specifier = ">=6.9.0" },

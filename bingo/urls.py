@@ -17,6 +17,10 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('api/game/<int:player_id>/clear/', views.clear_board, name='clear_board'),
+
+    path('review-suggestions/', views.review_suggestions, name='review_suggestions'),
+    path('approve-item/<int:item_id>/', views.approve_item, name='approve_item'),
+    path('deny-item/<int:item_id>/', views.deny_item, name='deny_item'),
     
     # API routes
     # path('api/', include(router.urls)),

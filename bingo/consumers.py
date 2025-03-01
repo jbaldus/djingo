@@ -5,7 +5,8 @@ from asgiref.sync import async_to_sync
 from django.template.loader import render_to_string
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import Player, BingoGame
+from .models import Player, BingoGame, BingoBoardItem
+from .forms import SuggestionForm
 
 logger = logging.getLogger(__name__)
 
@@ -68,14 +69,6 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                     await self.send(rendered_html)
                     winner = await self.check_win_condition()
                     if winner:
-                        # Notify all players about the winner
-                        # await self.channel_layer.group_send(
-                        #     self.game_group_name,
-                        #     {
-                        #         'type': 'winner_announcement',
-                        #         'winner': self.player.name
-                        #     }
-                        # )
                         await self.create_event(
                             player=player,
                             message=f"{player.name} has won the game!! 🎉<br/>You can keep playing, though."
@@ -86,10 +79,16 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
             elif message_type == 'request_state':
                 await self.send_game_state()
             elif message_type == 'clear_board':
-                await self.clear_board()
-                # Render a new board
-                rendered_html : str = '<div id="winnerModal" hx-target="#winnerModal"><script>window.location.reload()</script></div>'
+                await self.start_new_game()
+            elif message_type == 'make_suggestions':
+                context : dict = { 'form': SuggestionForm(), }
+                rendered_html : str = render_to_string("bingo/partials/suggestions_modal.html", context)
                 await self.send(rendered_html)
+            elif message_type == 'submit_suggestions':
+                await self.process_suggestions(data)
+                await self.start_new_game()
+
+
                 
         except json.JSONDecodeError:
             await self.send(text_data=json.dumps({
@@ -113,6 +112,12 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         if event.get("sender") != self.channel_name: #TODO: allow player to choose to see their messages or not
             await self.send(rendered_html)
 
+    async def start_new_game(self):
+        await self.clear_board()
+        # Reload the page
+        rendered_html : str = '<div id="winnerModal" hx-target="#winnerModal"><script>window.location.reload()</script></div>'
+        await self.send(rendered_html)
+    
     @database_sync_to_async
     def create_event(self, player, message):
         async_to_sync(self.channel_layer.group_send)(
@@ -141,7 +146,6 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
     def update_player_connection_status(self, is_connected):
         Player.objects.filter(id=self.player_id).update(is_connected=is_connected)
     
-
     @database_sync_to_async
     def clear_board(self):
         player : Player = Player.objects.select_related('game').get(id=self.player_id)
@@ -153,7 +157,6 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
             player.board_layout[game.get_center_position()] = "FREE"
         player.has_won = False
         player.save()
-
 
     @database_sync_to_async
     def mark_position(self, position):
@@ -212,3 +215,32 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         player = await self.get_player()
         game = player.game
         return game.check_win_condition(player.covered_positions)
+    
+    @database_sync_to_async
+    def process_suggestions(self, data):
+        form = SuggestionForm(data)
+        if form.is_valid():
+            suggestions = [
+                form.cleaned_data['suggestion1'],
+                form.cleaned_data['suggestion2'],
+                form.cleaned_data['suggestion3'],
+            ]
+            suggestions = [s.lower() for s in suggestions if s.strip() != '']
+            if not suggestions:
+                return
+            player = Player.objects.get(id=self.player_id)
+            game = player.game
+            board = game.board
+            # Implement some check for duplication here
+            for suggestion in suggestions:
+                if board.items.filter(text=suggestion):
+                    continue
+                BingoBoardItem.objects.create(
+                    board=board,
+                    text=suggestion,
+                    suggested_by=player.name,
+                )
+
+
+
+        ...

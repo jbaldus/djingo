@@ -42,7 +42,7 @@ body {
     justify-content: center;
     text-align: center;
     padding: 8px;
-    font-size: clamp(var(--grid-size)/45, 6vw, var(--grid-size)/25);
+    font-size: clamp(var(--grid-size)/45, 4vw, var(--grid-size)/25);
     cursor: pointer;
     transition: all 0.3s ease;
     background: white;
@@ -201,6 +201,6 @@ body {
 
     .bingo-cell {
         padding: 2px;
-        font-size: clamp(var(--grid-size)/45, 6vw, var(--grid-size)/25);
+        font-size: clamp(var(--grid-size)/45, 4vw, var(--grid-size)/25);
     }
 }

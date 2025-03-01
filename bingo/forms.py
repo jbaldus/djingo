@@ -8,6 +8,7 @@ class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
+
 class PlayerNameForm(forms.Form):
     name = forms.CharField(
         max_length=50,
@@ -15,6 +16,13 @@ class PlayerNameForm(forms.Form):
             'class': 'form-control',
             'placeholder': 'Enter your name'
         })
+    )
+    
+    use_suggested_items = forms.BooleanField(
+        label="Show user submitted suggestions",
+        initial=True,
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
 
 
@@ -26,7 +34,7 @@ class BingoBoardForm(forms.ModelForm):
 BingoBoardItemFormSet = inlineformset_factory(
     BingoBoard,
     BingoBoardItem,
-    fields=['text', 'position'],
+    fields=['text', 'suggested_by'],
     extra=25,
     min_num=25,
     validate_min=True,
@@ -41,3 +49,35 @@ class CreateGameForm(forms.ModelForm):
             'board_size': forms.RadioSelect,
             'win_condition': forms.RadioSelect,
         }
+
+class SuggestionForm(forms.Form):
+    suggestion1 = forms.CharField(
+        max_length=64,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Suggestion 1',
+            'maxlength': 64,
+            'size': 64,
+        })
+    )
+    suggestion2 = forms.CharField(
+        max_length=64,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Suggestion 2',
+            'maxlength': 64,
+            'size': 64,
+        })
+    )
+    suggestion3 = forms.CharField(
+        max_length=64,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Suggestion 3',
+            'maxlength': 64,
+            'size': 64,
+        })
+    )
