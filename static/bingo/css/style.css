@@ -24,6 +24,7 @@ body {
 .game-header {
     text-align: center;
     margin-bottom: 2px;
+    position: relative;
 }
 
 .game-header h1 {
@@ -33,6 +34,15 @@ body {
 .player-info {
     font-size: 1.2em;
     margin-bottom: 5px;
+}
+
+#share-button {
+    position: absolute;
+    bottom: 0;
+    right: 5px;
+    margin: 5px 5px 0 0;
+    padding: 5px 10px;
+    font-size: 0.8em;
 }
 
 /* Game board styling */

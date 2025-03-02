@@ -35,8 +35,7 @@ class BingoBoard(models.Model):
 class BingoBoardItem(models.Model):
     board = models.ForeignKey(BingoBoard, related_name='items', on_delete=models.CASCADE)
     text = models.CharField(max_length=64)
-    # position = models.IntegerField(null=True, blank=True)
-    suggested_by = models.CharField(max_length=50, default="")
+    suggested_by = models.CharField(max_length=50, default="", blank=True, null=True)
     approved = models.BooleanField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -62,6 +61,7 @@ class BingoGame(models.Model):
         ('all', 'All Squares'),
     ]
     
+    name = models.CharField(max_length=32, null=True, blank=True)
     board = models.ForeignKey(BingoBoard, on_delete=models.CASCADE)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=6, unique=True)

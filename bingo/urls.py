@@ -17,6 +17,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('api/game/<int:player_id>/clear/', views.clear_board, name='clear_board'),
+    path('game/<int:player_id>/share', views.share_game, name='share_game'),
 
     path('review-suggestions/', views.review_suggestions, name='review_suggestions'),
     path('approve-item/<int:item_id>/', views.approve_item, name='approve_item'),

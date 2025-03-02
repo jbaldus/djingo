@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'channels',
+    'qr_code',
     'bingo',
 ]
 
@@ -86,6 +87,18 @@ CHANNEL_LAYERS = {
     },
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'qr-code': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'qr_code_cache',
+        'TIMEOUT': 12*3600
+    },
+}
+
+QR_CODE_CACHE_ALIAS = 'qr-code'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

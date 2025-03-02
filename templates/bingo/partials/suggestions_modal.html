@@ -1,7 +1,10 @@
+{# templates/bingo/play_game.html #}
+{% extends 'bingo/base.html' %}
+
 <div class="modal" 
-     id="winnerModal"
+     id="theModal"
      style="display: flex;"
-     hx-target="#winnerModal">
+     hx-target="#theModal">
     <div class="modal-content">
         <h2>Suggest New Squares</h2>
         <p id="suggestionMessage">If you would like to add suggestions for bingo boxes that might make it into future games, you can add up to 3 suggestions below. Remember that we are all fans of guard and we want to keep the squares positive.</p>

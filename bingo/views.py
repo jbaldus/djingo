@@ -3,8 +3,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.urls import reverse
 from .models import BingoGame, BingoBoard, Player, BingoBoardItem
 from .forms import LoginForm, PlayerNameForm
 import json
@@ -27,6 +28,7 @@ def home(request):
     return render(request, 'bingo/home.html', context)
 
 def join_game(request, code):
+    code = code.upper()
     game = get_object_or_404(BingoGame, code=code, is_active=True)
     
     if request.method == 'POST':
@@ -65,12 +67,15 @@ def play_game(request, player_id):
     game = player.game
     if not game.is_active and not player.has_won:
         return redirect('home')
+    join_path = reverse('join_game', kwargs={'code': game.code})
+    share_url = request.build_absolute_uri(join_path)
     
     return render(request, 'bingo/play_game.html', {
         'player': player,
         'game': game,
         'board_items': list(player.board_layout),
-        'board_positions': range(game.board_size*game.board_size)
+        'board_positions': range(game.board_size*game.board_size),
+        'url': share_url,
     })
 
 def login_view(request):
@@ -150,3 +155,17 @@ def deny_item(request, item_id):
     item.approved = False
     item.save()
     return HttpResponse('')
+
+def share_game(request: HttpRequest, player_id: int):
+    try:
+        player: Player = get_object_or_404(Player, id=player_id)
+        game: BingoGame = player.game
+        join_path = reverse('join_game', kwargs={'code': game.code})
+        full_url = request.build_absolute_uri(join_path)
+
+        print(f"FULL URL: {full_url}")
+        context = { 'url': full_url }
+        return render(request, 'bingo/partials/share_game.html', context)
+                
+    except Player.DoesNotExist:
+        return JsonResponse({'error': 'Player not found'}, status=404)

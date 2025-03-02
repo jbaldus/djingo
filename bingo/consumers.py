@@ -116,7 +116,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
     async def start_new_game(self):
         await self.clear_board()
         # Reload the page
-        rendered_html : str = '<div id="winnerModal" hx-target="#winnerModal"><script>window.location.reload()</script></div>'
+        rendered_html : str = '<div id="theModal" hx-target="#theModal"><script>window.location.reload()</script></div>'
         await self.send(rendered_html)
     
     @database_sync_to_async

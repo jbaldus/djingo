@@ -1,15 +1,26 @@
 {# templates/bingo/play_game.html #}
 {% extends 'bingo/base.html' %}
 {% load bingo_tags %}
+{% load qr_code %}
 
 {% block content %}
 <div id="websocket-connection" hx-ext="ws" ws-connect="/ws/game/{{ player.id }}/">
 <div class="container">
     <div class="game-header">
-        <h1>WGI Bingo</h1>
+        <h1>Winter Guard Bingo</h1>
         <div class="player-info">
             Playing as: <strong>{{ player.name }}</strong>
         </div>
+        <!--<button id="share-button"
+                class="button button-secondary share-button" 
+                hx-target="#theModal"
+                hx-post="/game/{{ player.id }}/share"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>Share</button>
+        -->
+        <button id="share-button"
+                class="button button-secondary share-button"
+                onclick="javascript:document.getElementById('share-modal').style.display='flex';"
+                >Share</button>
     </div>
 
     <div class="bingo-board board-{{ game.board_size }}x{{ game.board_size }}" 
@@ -23,7 +34,16 @@
         {% endfor %}
     </div>
 
-    <div id="winnerModal"></div>
+    <div id="theModal" class="modal"></div>
+    <div id="share-modal" class="modal">
+        <div class="modal-content">
+            <h1>Share the Game</h1>
+            <p>If you want to share this game with a friend, have them scan this QR Code or visit: <br>
+                <b>{{ url }}</b></p>
+            <div id="qr-code">{% qr_from_text url image_format="png" size="T" %}</div>
+            <button class="button button-primary" onclick="javascript:document.getElementById('share-modal').style.display='none';">Close</button>
+        </div>
+    </div>
     <div id="errorMessage" class="error-message" style="display: none;"></div>
     <div id="connectedPlayers" class="connected-players"></div>
     <div class="game-events">
