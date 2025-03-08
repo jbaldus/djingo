@@ -12,7 +12,7 @@
             Playing as: <strong>{{ player.name }}</strong>
         </div>
         <button id="share-button"
-                class="button button-secondary share-button"
+                class="button is-primary is-small"
                 onclick="document.getElementById('share-modal').classList.add('show');">Share</button>
     </div>
 
@@ -34,7 +34,7 @@
             <p>If you want to share this game with a friend, have them scan this QR Code or visit: <br>
                 <b>{{ url }}</b></p>
             <div id="qr-code">{% qr_from_text url image_format="png" size="T" %}</div>
-            <button class="button button-primary" onclick="javascript:document.getElementById('share-modal').classList.remove('show');">Close</button>
+            <button class="button is-primary" onclick="javascript:document.getElementById('share-modal').classList.remove('show');">Close</button>
         </div>
     </div>
     <div id="errorMessage" class="error-message" style="display: none;"></div>
@@ -43,6 +43,13 @@
         <div id="eventsList" class="events-list"></div>
     </div>
     <div class="made-with-love"><p>Made with ❤️ for winterguards by Jason Baldus.<br>Go Reeths-Puffer! Go Caledonia!</p></div>
+    </div>
+    <div class="danger-area">
+        <button id="abandon-board-button"
+                class="button is-danger is-small"
+                hx-trigger="click"
+                hx-ws="send"
+                hx-vals='{"type": "confirm_abandon_board"}'>New Game</button>
     </div>
 </div>
 {% endblock %}

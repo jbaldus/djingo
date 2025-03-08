@@ -1,0 +1,13 @@
+<div class="modal" 
+     id="theModal"
+     style="display: flex;"
+     hx-target="#theModal">
+    <div class="modal-content">
+        <h2>Give Up and Restart?</h2>
+        <p id="give-up-game-message">Are you sure you want to give up on your progress and start a new game with a new board?</p>
+        <button class="button is-danger"
+                hx-ws="send"
+                hx-vals='{"type": "abandon_board"}'
+                hx-trigger="click">Give Up</button>
+    </div>
+</div>

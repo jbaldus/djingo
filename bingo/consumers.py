@@ -97,6 +97,13 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
             elif message_type == 'submit_suggestions':
                 await self.process_suggestions(data)
                 await self.start_new_game()
+            elif message_type == 'confirm_abandon_board':
+                rendered_html : str = render_to_string("bingo/partials/confirm_abandon_board_modal.html")
+                await self.send(rendered_html)
+            elif message_type == 'abandon_board':
+                message = f"{player.name} is giving up on their board and starting over"
+                await self.create_event(player=player, message=message)
+                await self.start_new_game()
 
 
                 
@@ -119,7 +126,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
 
     async def player_event(self, event):
         player : Player = await self.get_player()
-        rendered_html = f'<div hx-swap-oob="afterbegin:#eventsList" remove-me="120s"><div class="event-item"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
+        rendered_html : str= f'<div hx-swap-oob="afterbegin:#eventsList" remove-me="120s"><div class="event-item"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
         if event.get("sender") != self.channel_name or player.show_own_events: 
             await self.send(rendered_html)
 
