@@ -10,21 +10,6 @@
     {% endif %}
     <div class="join-game-section">
         <h2>Join a Game</h2>
-        <div class="game-code-join-section">
-            <h2>Have a code?</h2>
-            <form class="join-form" method="GET" onsubmit="return handleJoinGame(event)">
-                <div class="form-group">
-                    <input type="text" 
-                        id="gameCode"
-                        name="code" 
-                        class="form-control" 
-                        placeholder="Enter game code"
-                        pattern="[A-Za-z0-9]{3}"
-                        required>
-                </div>
-                <button type="submit" class="button button-primary">Join Game</button>
-            </form>
-        </div>
         <div class="active-games-section">
             <h2>Active Games</h2>
             {% if games %}
@@ -50,6 +35,23 @@
             {% else %}
                 <p>There are no active games at the moment. Check back later.</p>
             {% endif %}
+        </div>
+        <div class="game-code-join-section">
+            <details>
+                <summary><h2>Have a code?</h2></summary>
+                <form class="join-form" method="GET" onsubmit="return handleJoinGame(event)">
+                    <div class="form-group">
+                        <input type="text" 
+                            id="gameCode"
+                            name="code" 
+                            class="form-control" 
+                            placeholder="Enter game code"
+                            pattern="[A-Za-z0-9]{3}"
+                            required>
+                    </div>
+                    <button type="submit" class="button button-primary">Join Game</button>
+                </form>
+            </details>
         </div>
     </div>
 
