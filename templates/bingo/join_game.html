@@ -1,5 +1,6 @@
 {# templates/bingo/join_game.html #}
 {% extends "bingo/base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 <div class="container">
@@ -7,7 +8,7 @@
         <h2>Join Game: {{ game.code }}</h2>
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form|crispy }}
             <button type="submit" class="button button-primary">Start Playing</button>
         </form>
     </div>

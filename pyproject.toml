@@ -14,6 +14,8 @@ dependencies = [
     "whitenoise>=6.9.0",
     "django-charsleft-widget",
     "django-qr-code>=4.1.0",
+    "django-crispy-forms>=2.3",
+    "crispy-bulma>=0.11.0",
 ]
 
 [tool.uv.sources]

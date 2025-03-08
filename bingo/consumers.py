@@ -22,6 +22,11 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                 logger.error(f"No player found with ID: {self.player_id}")
                 await self.close(code=4004)
                 return
+            
+            if not self.player.game.is_active:
+                rendered_html = render_to_string("bingo/partials/inactive_game_modal.html")
+                await self.send(rendered_html)
+                return
                 
             self.game_group_name = f'game_{self.player.game.id}'
             logger.info(f"Player {self.player_id} joining game group: {self.game_group_name}")
@@ -59,6 +64,11 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         try:
+            player = await self.get_player()
+            if not player.game.is_active:
+                rendered_html = render_to_string("bingo/partials/inactive_game_modal.html")
+                await self.send(rendered_html)
+                return
             data = json.loads(text_data)
             message_type = data.get('type')
             if message_type == 'mark_position':
@@ -109,7 +119,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
 
     async def player_event(self, event):
         player : Player = await self.get_player()
-        rendered_html = f'<div hx-swap-oob="afterbegin:#eventsList"><div class="event-item"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
+        rendered_html = f'<div hx-swap-oob="afterbegin:#eventsList" remove-me="120s"><div class="event-item"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
         if event.get("sender") != self.channel_name or player.show_own_events: 
             await self.send(rendered_html)
 

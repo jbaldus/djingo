@@ -123,6 +123,19 @@ wheels = [
 ]
 
 [[package]]
+name = "crispy-bulma"
+version = "0.11.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "django-crispy-forms" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/90/6b/660e9b1e6cab7a3a63434edbdba85e21e7f217e1857b3026a84219ac61a7/crispy-bulma-0.11.0.tar.gz", hash = "sha256:27eccd09a5a77754d64462f61ff585c00feb8c15f65d0d8f9676ab26f6bc3562", size = 35747 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7a/6c/8734b21a4a0ea2dbfd563d30e9f245f81e72b7a19fb17f1ed32a3391d1e2/crispy_bulma-0.11.0-py3-none-any.whl", hash = "sha256:bc5406d64649a3da9c61d1aa969cb2c39bb3a1802ba8ee4bccebe94a84ca94e1", size = 20571 },
+]
+
+[[package]]
 name = "cryptography"
 version = "44.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -194,6 +207,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "django-crispy-forms"
+version = "2.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/04/f6/5bce7ae3512171c7c0ca3de31689e2a1ced8b030f156fcf13d2870e5468e/django_crispy_forms-2.3.tar.gz", hash = "sha256:2db17ae08527201be1273f0df789e5f92819e23dd28fec69cffba7f3762e1a38", size = 278849 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4c/3b/5dc3faf8739d1ce7a73cedaff508b4af8f6aa1684120ded6185ca0c92734/django_crispy_forms-2.3-py3-none-any.whl", hash = "sha256:efc4c31e5202bbec6af70d383a35e12fc80ea769d464fb0e7fe21768bb138a20", size = 31411 },
+]
+
+[[package]]
 name = "django-qr-code"
 version = "4.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -226,9 +251,11 @@ source = { virtual = "." }
 dependencies = [
     { name = "channels" },
     { name = "channels-redis" },
+    { name = "crispy-bulma" },
     { name = "daphne" },
     { name = "django" },
     { name = "django-charsleft-widget" },
+    { name = "django-crispy-forms" },
     { name = "django-qr-code" },
     { name = "djangorestframework" },
     { name = "redis" },
@@ -239,9 +266,11 @@ dependencies = [
 requires-dist = [
     { name = "channels", specifier = ">=4.2.0" },
     { name = "channels-redis", specifier = ">=4.2.1" },
+    { name = "crispy-bulma", specifier = ">=0.11.0" },
     { name = "daphne", specifier = ">=4.1.2" },
     { name = "django", specifier = ">=5.1.6" },
     { name = "django-charsleft-widget", git = "https://github.com/timmyomahony/django-charsleft-widget.git" },
+    { name = "django-crispy-forms", specifier = ">=2.3" },
     { name = "django-qr-code", specifier = ">=4.1.0" },
     { name = "djangorestframework", specifier = ">=3.15.2" },
     { name = "redis", specifier = ">=5.2.1" },

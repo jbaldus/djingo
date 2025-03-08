@@ -16,13 +16,14 @@ logger = logging.getLogger(__name__)
 
 def home(request):
     context = {
-        'recent_name': request.COOKIES.get('player_name', '')
+        'recent_name': request.COOKIES.get('player_name', ''),
+        'games': BingoGame.objects.filter(is_active=True).exclude(is_private=True).order_by('-created_at'),
     }
     
     if request.user.is_authenticated:
         context.update({
             'boards': BingoBoard.objects.filter(creator=request.user).order_by('-created_at'),
-            'games': BingoGame.objects.filter(creator=request.user).order_by('-created_at')
+            # 'games': BingoGame.objects.filter(creator=request.user).order_by('-created_at')
         })
     
     return render(request, 'bingo/home.html', context)

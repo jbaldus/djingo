@@ -15,7 +15,8 @@ class PlayerNameForm(forms.Form):
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Enter your name'
-        })
+        }),
+        help_text="Just put your first name or a nickname -- we're not trying to steal any identities here 😉. This will be displayed on other players games when you mark a bingo square."
     )
     
     use_suggested_items = forms.BooleanField(

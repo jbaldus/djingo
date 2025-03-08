@@ -3,20 +3,54 @@
 
 {% block content %}
 <div class="container">
+    {% if user.is_authenticated %}
+    <div class="admin-section">
+        <a href="/admin"><button class="button button-admin">Admin</button></a>
+    </div>
+    {% endif %}
     <div class="join-game-section">
         <h2>Join a Game</h2>
-        <form class="join-form" method="GET" onsubmit="return handleJoinGame(event)">
-            <div class="form-group">
-                <input type="text" 
-                       id="gameCode"
-                       name="code" 
-                       class="form-control" 
-                       placeholder="Enter game code"
-                       pattern="[A-Za-z0-9]{6}"
-                       required>
-            </div>
-            <button type="submit" class="button button-primary">Join Game</button>
-        </form>
+        <div class="game-code-join-section">
+            <h2>Have a code?</h2>
+            <form class="join-form" method="GET" onsubmit="return handleJoinGame(event)">
+                <div class="form-group">
+                    <input type="text" 
+                        id="gameCode"
+                        name="code" 
+                        class="form-control" 
+                        placeholder="Enter game code"
+                        pattern="[A-Za-z0-9]{3}"
+                        required>
+                </div>
+                <button type="submit" class="button button-primary">Join Game</button>
+            </form>
+        </div>
+        <div class="active-games-section">
+            <h2>Active Games</h2>
+            {% if games %}
+                <div class="game-list">
+                    {% for game in games %}
+                        {% if game.is_active and not game.is_private %}
+                            <div class="game-card">
+                                <h3>Game Title: {{ game.name }}</h3>
+                                <p>Game Code: {{ game.code }}</p>
+                                <p>Board: {{ game.board.name }}</p>
+                                <p>Status: {% if game.is_active %}Active{% else %}Ended{% endif %}</p>
+                                <p>Players: {{ game.players.count }}</p>
+                                {% if game.is_active %}
+                                    <a href="/play/{{ game.code }}"><button class="button button-primary">Play Game</button></a>
+                                    {% if user.is_authenticated %}
+                                        <button class="button" onclick="endGame({{ game.id }})">End Game</button>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>There are no active games at the moment. Check back later.</p>
+            {% endif %}
+        </div>
     </div>
 
     {% if user.is_authenticated %}
@@ -39,28 +73,6 @@
                 <p>You haven't created any boards yet.</p>
             {% endif %}
             <button class="button button-primary" onclick="createBoard()">Create New Board</button>
-        </div>
-
-        <div class="my-games-section">
-            <h2>My Games</h2>
-            {% if games %}
-                <div class="game-list">
-                    {% for game in games %}
-                        <div class="game-card">
-                            <h3>Game Code: {{ game.code }}</h3>
-                            <p>Board: {{ game.board.name }}</p>
-                            <p>Status: {% if game.is_active %}Active{% else %}Ended{% endif %}</p>
-                            <p>Players: {{ game.players.count }}</p>
-                            {% if game.is_active %}
-                                <a href="/play/{{ game.code }}"><button class="button button-primary">Play Game</button></a>
-                                <button class="button" onclick="endGame({{ game.id }})">End Game</button>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p>You haven't created any games yet.</p>
-            {% endif %}
         </div>
     {% endif %}
 </div>
