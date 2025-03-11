@@ -23,7 +23,7 @@
                                 <p>Status: {% if game.is_active %}Active{% else %}Ended{% endif %}</p>
                                 <p>Players: {{ game.players.count }}</p>
                                 {% if game.is_active %}
-                                    <a href="/play/{{ game.code }}"><button class="button button-primary">Play Game</button></a>
+                                    <a href="/play/{{ game.code }}"><button class="button is-primary">Play Game</button></a>
                                     {% if user.is_authenticated %}
                                         <button class="button" onclick="endGame({{ game.id }})">End Game</button>
                                     {% endif %}
@@ -49,7 +49,7 @@
                             pattern="[A-Za-z0-9]{3}"
                             required>
                     </div>
-                    <button type="submit" class="button button-primary">Join Game</button>
+                    <button type="submit" class="button is-primary">Join Game</button>
                 </form>
             </details>
         </div>
@@ -74,7 +74,7 @@
             {% else %}
                 <p>You haven't created any boards yet.</p>
             {% endif %}
-            <button class="button button-primary" onclick="createBoard()">Create New Board</button>
+            <button class="button is-primary" onclick="createBoard()">Create New Board</button>
         </div>
     {% endif %}
 </div>
