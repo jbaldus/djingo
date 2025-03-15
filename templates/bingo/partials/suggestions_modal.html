@@ -1,16 +1,16 @@
 {% load crispy_forms_tags %}
 
-<div class="modal" 
+<div class="modal show" 
      id="theModal"
-     style="display: flex;"
+     hx-swap="outerHTML"
      hx-target="#theModal">
     <div class="modal-content">
         <h2>Suggest New Squares</h2>
-        <p id="suggestion-message">If you would like to add suggestions for bingo boxes that might make it into future games, you can add up to 3 suggestions below. Remember that we are all fans of guard and we want to keep the squares positive.</p>
+        <p class="message">If you would like to add suggestions for bingo boxes that might make it into future games, you can add up to 3 suggestions below. Remember that we are all fans of guard and we want to keep the squares positive.</p>
         <form id="suggestion-form" ws-send>
             <input type="hidden" name="type" value="submit_suggestions" >
-            {{ form | crispy }}
-            <button class="button is-primary" type="submit">Submit Suggestions &amp; Play Again</button>
+            {{ form|crispy }}
+            <button class="button is-primary form-control" type="submit">Submit Suggestions &amp; Play Again</button>
         </form>
     </div>
 </div>

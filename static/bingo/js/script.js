@@ -14,8 +14,22 @@ function adjustFontSize(element) {
 
 htmx.onLoad(function(content) {
     console.log(content);
+    attachShowTargetHandler(content);
     for (text of content.getElementsByClassName("bingo-cell-text")) {
         adjustFontSize(text) ;
     }
 });
+
+function attachShowTargetHandler(element) {
+    element == element || document
+    element.querySelectorAll('[data-show-target]').forEach(button => {
+        button.addEventListener('click', () => {
+            const targetSelector = button.dataset.showTarget
+            document.querySelectorAll(targetSelector).forEach(target => {
+                target.classList.toggle('show');
+            });
+        });
+    });
+}
   
+document.addEventListener('DOMContentLoaded', attachShowTargetHandler)

@@ -6,17 +6,22 @@
     font-family: 'League Spartan';
 }
 
+* {
+    box-sizing: border-box;
+}
+
 :root {
     --primary-color: #4A90E2;
     --secondary-color: #45B7AF;
     --background-color: #F5F7FA;
     --admin-color: #005323;
+    --danger-color: #ff6685;
     --text-color: #2C3E50;
     --grid-size: min(80vw, 600px);
 }
 
 body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-family: 'League Spartan','Segoe UI', system-ui, sans-serif;
     margin: 0;
     padding: 2px;
     background: var(--background-color);
@@ -51,26 +56,40 @@ body {
     bottom: 0;
     right: 5px;
     margin: 5px 5px 0 0;
-    padding: 5px 10px;
-    font-size: 0.8em;
 }
 
-.danger-area {
-    position: relative;
-    width: var(--grid-size);
-}
-
-#abandon-board-button {
+#about-button {
     position: absolute;
     bottom: 0;
     left: 5px;
+}
+
+#abandon-board-button {
+
     margin: 5px 5px 5px 0;
-    padding: 5px 10px;
-    font-size: 0.8em;
 }
 
 /* Game board styling */
 
+.bingo-board {
+    display: grid;
+    gap: 8px;
+    width: var(--grid-size);
+    height: var(--grid-size);
+    margin: 0 auto;
+    padding: 8px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.board-4x4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.board-5x5 {
+    grid-template-columns: repeat(5, 1fr);
+}
 
 .bingo-cell {
     aspect-ratio: 1;
@@ -100,7 +119,8 @@ body {
     font-weight: bold;
 }
 
-/* Winner Modal */
+
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -122,9 +142,12 @@ body {
     background: white;
     padding: 30px;
     border-radius: 12px;
-    text-align: center;
     width: var(--grid-size);
     position: relative;
+}
+
+.modal-content h2 {
+    text-align: center;
 }
 
 /* .modal-buttons {
@@ -132,10 +155,10 @@ body {
     display: flex;
     gap: 10px;
     justify-content: center;
-}
+}*/
 
 .button {
-    padding: 10px 20px;
+    padding: 0.65em 1em;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -143,20 +166,55 @@ body {
     transition: all 0.3s ease;
 }
 
-.button-primary {
+.is-primary {
     background: var(--primary-color);
     color: white;
 }
 
-.button-secondary {
+.is-secondary {
     background: var(--secondary-color);
     color: white;
-} */
+} 
+
+.is-danger {
+    background: var(--danger-color);
+}
+
+.is-small {
+    margin: 0;
+    padding: 0.5em 0.8em;
+    font-size: 0.8em;
+}
 
 .button-admin {
     background: var(--admin-color);
     color: white;
 }
+/* Form styling */
+
+button.form-control, .field {
+    margin-top: 1rem;
+}
+
+.field {
+    text-align: left;
+}
+
+.field label {
+    font-weight: bold;
+}
+
+.field input {
+    width: 100%;
+    padding: 0.5em;
+}
+
+.field .help {
+    font-size: 0.9rem;
+}
+
+
+/* Messages styling */
 
 .error-message {
     background: #fee;
@@ -178,26 +236,6 @@ body {
     border-radius: 12px;
     margin: 0 4px;
     font-size: 0.9em;
-}
-
-.bingo-board {
-    display: grid;
-    gap: 8px;
-    width: var(--grid-size);
-    height: var(--grid-size);
-    margin: 0 auto;
-    padding: 8px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.board-4x4 {
-    grid-template-columns: repeat(4, 1fr);
-}
-
-.board-5x5 {
-    grid-template-columns: repeat(5, 1fr);
 }
 
 .game-events {
@@ -249,6 +287,10 @@ body {
   margin: 0 auto;
 }
 
+.suggestion-input {
+    width: 100%;
+}
+
 @media (max-width: 600px) {
     :root {
         --grid-size: 95vw;
@@ -271,3 +313,218 @@ body {
         font-size: clamp(var(--grid-size)/45, 4vw, var(--grid-size)/25);
     }
 }
+
+
+
+
+
+/* SIDEBAR STYLING */
+
+/* Sidebar Drawer */
+/* #drawer-about {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 80vw;
+    height: 100vh;
+    padding: 4px;
+    background-color: var(--background-color);
+    translate: -100%;
+    transition-property: translate;
+    transition-duration: 300ms;
+}
+
+
+#drawer-close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+#drawer-close-button svg {
+    height: 10px;
+    width: 10px;
+} */
+
+/* Global Styles */
+:root {
+    --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
+    --color-gray-400: #9ca3af;
+    --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1f2937;
+    --color-gray-900: #111827;
+    --color-blue-100: #dbeafe;
+    --color-blue-300: #93c5fd;
+    --color-blue-500: #3b82f6;
+    --color-blue-600: #2563eb;
+    --color-blue-700: #1d4ed8;
+    --color-blue-800: #1e40af;
+    --color-blue-900: #1a3d7d;
+    --color-white: #ffffff;
+    --color-black: #000000;
+}
+  
+  /* Drawer Menu */
+.drawer-menu {
+    position: fixed;
+    display: flex;
+    /* grid-template-rows: auto 1fr auto; */
+    flex-direction: column;
+    overflow-y: hidden;
+    top: 0;
+    left: 0;
+    z-index: 40;
+    width: 16rem;
+    width: 80vw;
+    height: 100vh;
+    padding: 1rem;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    background-color: var(--color-white);
+    border: 1px solid blue;
+}
+
+.drawer-content {
+    overflow-y: auto;
+    /* border: 1px solid red; */
+    /* grid-row: 2; */
+    flex-grow: 1;
+    /* height: 50vh; */
+}
+
+#drawer-about.show {
+    transform: translateX(0);
+}  
+
+.dark .drawer-menu {
+    background-color: var(--color-gray-800);
+}
+
+/* Drawer Menu Title */
+.drawer-menu h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+    color: var(--color-gray-500);
+}
+
+.drawer-menu h5:not(:first-of-type) {
+    margin-top: 2em;
+    padding-top: 0.5em;
+    border-top: 1px solid var(--color-gray-300)
+}
+
+.dark .drawer-menu-title {
+    color: var(--color-gray-400);
+}
+
+/* Close Button */
+.close-button {
+    position: absolute;
+    top: 0.625rem;
+    right: 0.625rem;
+    background-color: transparent;
+    color: var(--color-gray-400);
+    padding: 0.375rem;
+    border-radius: 0.375rem;
+    border: 0 solid;
+    align-items: center;
+    display: flex;
+    margin: 0;
+    padding: 6px;
+    top: 10px;
+    appearance: button;
+}
+
+.close-button > .svg-icon {
+    height: 10px;
+    width: 10px;
+}
+
+/* Drawer Menu Item */
+.drawer-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    color: var(--color-gray-900);
+}
+
+.dark .drawer-menu-item {
+    color: var(--color-white);
+}
+
+.drawer-menu-item:hover {
+    background-color: var(--color-gray-100);
+}
+
+.dark .drawer-menu-item:hover {
+    background-color: var(--color-gray-700);
+}
+
+.dark .close-button {
+    color: var(--color-gray-400);
+}
+
+.close-button:hover {
+    background-color: var(--color-gray-200);
+    color: var(--color-gray-900);
+}
+
+.dark .close-button:hover {
+    background-color: var(--color-gray-600);
+    color: var(--color-white);
+}
+
+/* SVG Icons */
+.svg-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: var(--color-gray-500);
+    transition: fill 0.15s ease-in-out;
+}
+
+.dark .svg-icon {
+   fill: var(--color-gray-400);
+}
+
+.group:hover .svg-icon {
+   fill: var(--color-gray-900);
+}
+
+.dark .group:hover .svg-icon {
+    fill: var(--color-white);
+}
+
+/* Badge */
+.badge {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 50%;
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-800);
+}
+
+.dark .badge {
+    background-color: var(--color-gray-700);
+    color: var(--color-gray-300);
+}
+
+.badge.pro {
+    background-color: var(--color-blue-100);
+    color: var(--color-blue-800);
+}
+
+.dark .badge.pro {
+    background-color: var(--color-blue-900);
+    color: var(--color-blue-300);
+}
+  

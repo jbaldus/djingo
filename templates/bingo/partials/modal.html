@@ -1,0 +1,18 @@
+{% load crispy_forms_tags %}
+
+<div class="modal show" 
+     id="theModal"
+     hx-swap="outerHTML"
+     hx-target="#theModal">
+    <div class="modal-content">
+        <h2>{{ title }}</h2>
+        <p class="message">{{ message }}</p>
+        <form id="modal-form" ws-send>
+            <input type="hidden" name="type" value="{{ consumer_message }}" >
+            {{ form|crispy }}
+            <button class="button is-cancel"
+                    data-show-target="#theModal">Cancel</button>
+            <button class="button is-primary" type="submit">{{ submit_text }}</button>
+        </form>
+    </div>
+</div>

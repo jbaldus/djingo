@@ -1,13 +1,17 @@
-<div class="modal" 
+<div class="modal give-up-moda show" 
      id="theModal"
-     style="display: flex;"
      hx-target="#theModal">
     <div class="modal-content">
         <h2>Give Up and Restart?</h2>
-        <p id="give-up-game-message">Are you sure you want to give up on your progress and start a new game with a new board?</p>
-        <button class="button is-danger"
-                hx-ws="send"
-                hx-vals='{"type": "abandon_board"}'
-                hx-trigger="click">Give Up</button>
+        <p class="message">Are you sure you want to give up on your progress and start a new game with a new board?</p>
+
+        <form id="modal-form" ws-send>
+                <button class="button is-cancel"
+                        data-show-target="#theModal">Cancel</button>
+                <button class="button is-danger"
+                        hx-ws="send"
+                        hx-vals='{"type": "abandon_board"}'
+                        hx-trigger="click">Give Up</button>
+        </form>
     </div>
 </div>
