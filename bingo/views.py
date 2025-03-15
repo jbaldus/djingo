@@ -44,8 +44,13 @@ def join_game(request, code):
                     player.name = name
                     player.use_suggested_items = use_suggested_items
                     player.save()
+                if not player.game.is_active:
+                    player = None
 
             except Player.DoesNotExist:
+                pass
+
+            if player is None:
                 player = Player.objects.create(
                     game=game,
                     name=form.cleaned_data['name'],
