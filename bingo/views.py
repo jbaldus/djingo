@@ -44,7 +44,7 @@ def join_game(request, code):
                     player.name = name
                     player.use_suggested_items = use_suggested_items
                     player.save()
-                if not player.game.is_active:
+                if not player.game.is_active or game != player.game:
                     player = None
 
             except Player.DoesNotExist:
