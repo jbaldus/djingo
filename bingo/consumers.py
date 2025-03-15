@@ -84,7 +84,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                             message=f"{player.name} has won the game!! 🎉<br/>You can keep playing, though."
                         )
                         context : dict = { 'player': player}
-                        rendered_html : str = render_to_string("bingo/partials/winner_modal.html", player)
+                        rendered_html : str = render_to_string("bingo/partials/winner_modal.html", context)
                         await self.send(rendered_html)
         
             elif message_type == 'request_state':
