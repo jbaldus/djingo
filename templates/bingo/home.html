@@ -13,7 +13,7 @@
     <div class="join-game-section">
         <h2>Join a Game</h2>
         <div class="active-games-section">
-            <h2 style="background-color: gray; width: 100%; padding: 10px 0; margin: 10px 0 0 0;">Active Games</h2>
+            <h2>Active Games</h2>
             {% if games %}
                 <div class="game-list">
                     {% for game in games %}
@@ -79,6 +79,7 @@
             <button class="button is-primary" onclick="createBoard()">Create New Board</button>
         </div>
     {% endif %}
+    <div class="made-with-love"><p>Made with ❤️ for winterguards by Jason Baldus.<br>Go Reeths-Puffer! Go Caledonia!</p></div>
 </div>
 
 <script>
