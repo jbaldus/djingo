@@ -528,3 +528,14 @@ button.form-control, .field {
     color: var(--color-blue-300);
 }
   
+
+/* HOME PAGE STYLES */
+
+details h1,
+details h2,
+details h3,
+details h4,
+details h5,
+details h6 {
+    display: inline;
+}
