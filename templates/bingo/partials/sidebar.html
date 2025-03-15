@@ -1,0 +1,33 @@
+<div id="drawer-about" class="drawer-menu" tabindex="-1">
+    <button id="drawer-close-button" class="close-button" type="button" aria-controls="drawer-navigation" data-show-target="#drawer-about">
+        <svg aria-hidden="true" fill="currentColor" 
+        class="svg-icon" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M1 0L5 4L9 0L10 1L6 5L10 9L9 10L5 6L1 10L0 9L4 5L0 1L1 0z" clip-rule="evenodd"></path></svg>
+    </button>
+    <h5>About</h5>
+    <!-- <div class="drawer-content"> -->
+        <p>This game exists because I love to watch winterguard shows. Please share it far and wide using the share button on the game board screen.</p>
+
+        <h5>Privacy</h5>
+        <p>The only data I collect is the name you give when you first start playing. Please use just your first name, or a nickname. Your name is shown to other players when you make a selection or win a game. <strong>If you would like to change your name, use this button.</strong></p>
+        <div>
+            <button id="change-name-button"
+                    class="button is-primary is-small"
+                    hx-ws="send"
+                    hx-trigger="click"
+                    hx-vals='{"type": "change_name_form"}'>Change Name</button>
+        </div>
+
+        <h5>Rules</h5>
+        <p>This is a game to play with your friends for fun. There are no prizes. There is no leader board. No one gets into heaven because you won this game. <em>Feel free to interpret the bingo squares how you would like.</em> If your game board has items that are too hard, you can give up and make a new board with the <em>New Game</em> button below. <strong>You will lose your progress on your current board though.</strong></p>
+        <div class="danger-area">
+            <button id="abandon-board-button"
+                    class="button is-danger is-small"
+                    hx-trigger="click"
+                    hx-ws="send"
+                    hx-vals='{"type": "confirm_abandon_board"}'>New Game</button>
+        </div>
+
+        <h5>Suggest Squares</h5>
+        <p>When you win a game, you will have a chance to make the game better by suggesting some new squares. Remember that we love guard and we want to keep our squares positive and uplifting of the performers and their audience.</p>
+    <!-- </div> -->
+</div>

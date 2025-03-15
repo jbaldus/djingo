@@ -8,12 +8,17 @@
 <div class="container">
     <div class="game-header">
         <h1>Winter Guard Bingo</h1>
-        <div class="player-info">
+        <div id="player-info" class="player-info">
             Playing as: <strong>{{ player.name }}</strong>
         </div>
         <button id="share-button"
                 class="button is-primary is-small"
-                onclick="document.getElementById('share-modal').classList.add('show');">Share</button>
+                data-show-target="#share-modal"
+                >Share</button>
+        <button id="about-button"
+                class="button is-secondary is-small"
+                data-show-target="#drawer-about"
+                >About</button>
     </div>
 
     <div class="bingo-board board-{{ game.board_size }}x{{ game.board_size }}" 
@@ -27,16 +32,10 @@
         {% endfor %}
     </div>
 
+    {% include "bingo/partials/sidebar.html" %}
+
     <div id="theModal" class="modal"></div>
-    <div id="share-modal" class="modal">
-        <div class="modal-content">
-            <h1>Share the Game</h1>
-            <p>If you want to share this game with a friend, have them scan this QR Code or visit: <br>
-                <b>{{ url }}</b></p>
-            <div id="qr-code">{% qr_from_text url image_format="png" size="T" %}</div>
-            <button class="button is-primary" onclick="javascript:document.getElementById('share-modal').classList.remove('show');">Close</button>
-        </div>
-    </div>
+    {% include "bingo/partials/share_game.html" %}
     <div id="errorMessage" class="error-message" style="display: none;"></div>
     <div id="connectedPlayers" class="connected-players"></div>
     <div class="game-events" hx-ext="remove-me">
@@ -44,12 +43,12 @@
     </div>
     <div class="made-with-love"><p>Made with ❤️ for winterguards by Jason Baldus.<br>Go Reeths-Puffer! Go Caledonia!</p></div>
     </div>
-    <div class="danger-area">
+    <!-- <div class="danger-area">
         <button id="abandon-board-button"
                 class="button is-danger is-small"
                 hx-trigger="click"
                 hx-ws="send"
                 hx-vals='{"type": "confirm_abandon_board"}'>New Game</button>
-    </div>
+    </div> -->
 </div>
 {% endblock %}

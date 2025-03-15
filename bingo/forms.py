@@ -26,6 +26,16 @@ class PlayerNameForm(forms.Form):
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
 
+class PlayerNameChangeForm(forms.Form):
+    name = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your name'
+        }),
+        help_text="Just put your first name or a nickname -- we're not trying to steal any identities here 😉. This will be displayed on other players games when you mark a bingo square."
+    )
+
 
 class BingoBoardForm(forms.ModelForm):
     class Meta:
@@ -56,29 +66,26 @@ class SuggestionForm(forms.Form):
         max_length=64,
         required=False,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class': 'form-control suggestion-input',
             'placeholder': 'Suggestion 1',
             'maxlength': 64,
-            'size': 64,
         })
     )
     suggestion2 = forms.CharField(
         max_length=64,
         required=False,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class': 'form-control suggestion-input',
             'placeholder': 'Suggestion 2',
             'maxlength': 64,
-            'size': 64,
         })
     )
     suggestion3 = forms.CharField(
         max_length=64,
         required=False,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
+            'class': 'form-control suggestion-input',
             'placeholder': 'Suggestion 3',
             'maxlength': 64,
-            'size': 64,
         })
     )

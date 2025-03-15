@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import Player, BingoGame, BingoBoardItem
-from .forms import SuggestionForm
+from .forms import SuggestionForm, PlayerNameChangeForm
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,8 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                             player=player,
                             message=f"{player.name} has won the game!! 🎉<br/>You can keep playing, though."
                         )
-                        rendered_html = render_to_string("bingo/partials/winner_modal.html")
+                        context : dict = { 'player': player}
+                        rendered_html : str = render_to_string("bingo/partials/winner_modal.html", player)
                         await self.send(rendered_html)
         
             elif message_type == 'request_state':
@@ -104,7 +105,20 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                 message = f"{player.name} is giving up on their board and starting over"
                 await self.create_event(player=player, message=message)
                 await self.start_new_game()
-
+            elif message_type == 'change_name_form':
+                context : dict = {
+                   'form': PlayerNameChangeForm(),
+                   'consumer_message': 'change_name',
+                   'message': '',
+                   'title': 'Change Name',
+                   'submit_text': 'Change Name', 
+                }
+                rendered_html : str = render_to_string("bingo/partials/modal.html", context)
+                await self.send(rendered_html)
+            elif message_type == 'change_name':
+                player_name = await self.process_name_change(data)
+                rendered_html : str = f'<div hx-target="#player-info" hx-swap="outerHTML" id="player-info" class="player-info">Playing as: <strong>{player_name}</strong></div><div id="theModal" hx-target="#theModal" hx-swap="outerHTML"><script>document.getElementById("drawer-close-button").click()</script></div>'
+                await self.send(rendered_html)
 
                 
         except json.JSONDecodeError:
@@ -126,7 +140,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
 
     async def player_event(self, event):
         player : Player = await self.get_player()
-        rendered_html : str= f'<div hx-swap-oob="afterbegin:#eventsList" remove-me="120s"><div class="event-item"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
+        rendered_html : str= f'<div hx-swap-oob="afterbegin:#eventsList"><div class="event-item" remove-me="30s"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
         if event.get("sender") != self.channel_name or player.show_own_events: 
             await self.send(rendered_html)
 
@@ -260,5 +274,15 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                 )
 
 
+    @database_sync_to_async
+    def process_name_change(self, data):
+        form = PlayerNameChangeForm(data)
+        if form.is_valid():
+            new_name = form.cleaned_data['name']
+            player = Player.objects.get(id=self.player_id)
+            if player.name != new_name:
+                player.name = new_name
+                player.save()
+            return player.name
+            
 
-        ...

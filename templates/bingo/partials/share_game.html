@@ -1,15 +1,10 @@
 {% load qr_code %}
-
-<div class="modal share-modal"
-     id="theModal"
-     style="display: flex;"
-     hx-target="#theModal"
-     >
+<div id="share-modal" class="modal">
     <div class="modal-content">
-        <h1>Share the Game</h1>
-        <p>If you want to share this game with a friend, have them scan this QR Code or visit: <br>
+        <h2>Share the Game</h2>
+        <p class="message">If you want to share this game with a friend, have them scan this QR Code or visit: <br>
             <b>{{ url }}</b></p>
         <div id="qr-code">{% qr_from_text url image_format="png" size="T" %}</div>
-        <button class="button is-primary" onclick="javascript:document.getElementById('share-modal').classList.remove('show');">Close</button>
-    </div>    
+        <button class="button is-primary" data-show-target="#share-modal">Close</button>
+    </div>
 </div>

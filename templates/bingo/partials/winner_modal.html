@@ -1,6 +1,5 @@
-<div class="modal winner-modal" 
+<div class="modal winner-modal show" 
      id="theModal"
-     style="display: flex;"
      hx-target="#theModal">
     <script>
         confetti({
@@ -11,7 +10,7 @@
     </script>
     <div class="modal-content">
         <h2>We Have a Winner!</h2>
-        <p id="winnerMessage"></p>
+        <p class="message"><strong>{{ player.name }}</strong>, you have won!</p>
         <div class="modal-buttons">
             <button class="button is-primary" 
                     hx-trigger="click"

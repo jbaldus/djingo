@@ -37,22 +37,25 @@ def join_game(request, code):
         if form.is_valid():
             name = form.cleaned_data['name']
             use_suggested_items = form.cleaned_data['use_suggested_items']
+            player_id = request.COOKIES.get('player_id')
+            try:
+                player = Player.objects.get(id=player_id)
+                if player.name != name:
+                    player.name = name
+                    player.use_suggested_items = use_suggested_items
+                    player.save()
 
-            # Check for existing player
-            existing_player = Player.objects.filter(name=name, game=game).first()
-            if existing_player:
-                # Redirect to existing player's game
-                return redirect('play_game', player_id=existing_player.id)
-
-            player = Player.objects.create(
-                game=game,
-                name=form.cleaned_data['name'],
-                board_layout=game.generate_board_layout(use_suggested_items),
-                covered_positions=[12] if game.has_free_square else [],
-                use_suggested_items=use_suggested_items,
-            )
+            except Player.DoesNotExist:
+                player = Player.objects.create(
+                    game=game,
+                    name=form.cleaned_data['name'],
+                    board_layout=game.generate_board_layout(use_suggested_items),
+                    covered_positions=[12] if game.has_free_square else [],
+                    use_suggested_items=use_suggested_items,
+                )
             
             response = redirect('play_game', player_id=player.id)
+            response.set_cookie('player_id', player.id, max_age=30*24*60*60)  # 30 days
             response.set_cookie('player_name', form.cleaned_data['name'], max_age=30*24*60*60)  # 30 days
             return response
     else:
