@@ -13,16 +13,16 @@
     <div class="join-game-section">
         <h2>Join a Game</h2>
         <div class="active-games-section">
-            <h2>Active Games</h2>
+            <h2 style="background-color: gray; width: 100%; padding: 10px 0; margin: 10px 0 0 0;">Active Games</h2>
             {% if games %}
                 <div class="game-list">
                     {% for game in games %}
                         {% if game.is_active and not game.is_private %}
                             <div class="game-card">
                                 <h3>Game Title: {{ game.name }}</h3>
-                                <p>Game Code: {{ game.code }}</p>
+                                <!-- <p>Game Code: {{ game.code }}</p>
                                 <p>Board: {{ game.board.name }}</p>
-                                <p>Status: {% if game.is_active %}Active{% else %}Ended{% endif %}</p>
+                                <p>Status: {% if game.is_active %}Active{% else %}Ended{% endif %}</p> -->
                                 <p>Players: {{ game.players.count }}</p>
                                 {% if game.is_active %}
                                     <a href="/play/{{ game.code }}"><button class="button is-primary">Join the Game</button></a>
@@ -38,7 +38,7 @@
                 <p>There are no active games at the moment. Check back later.</p>
             {% endif %}
         </div>
-        <div class="game-code-join-section">
+        <div class="game-code-join-section" style="margin-top: 2em; border-top: 1px solid gray; padding-top: 0.5em">
             <details>
                 <summary><h2>Have a code?</h2></summary>
                 <form class="join-form" method="GET" onsubmit="return handleJoinGame(event)">
