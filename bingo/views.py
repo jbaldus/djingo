@@ -38,6 +38,7 @@ def join_game(request, code):
             name = form.cleaned_data['name']
             use_suggested_items = form.cleaned_data['use_suggested_items']
             player_id = request.COOKIES.get('player_id')
+            player = None
             try:
                 player = Player.objects.get(id=player_id)
                 if player.name != name:
