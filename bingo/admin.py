@@ -240,4 +240,4 @@ class PlayerAdmin(admin.ModelAdmin):
     list_display = ('name', 'game', 'created_at', 'is_connected', 'has_won')
     list_filter = ('has_won', 'is_connected', 'created_at')
     search_fields = ('name', 'game__code')
-    readonly_fields = ('board_layout', 'covered_positions')
+    readonly_fields = ('covered_positions',)
