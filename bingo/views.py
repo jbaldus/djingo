@@ -28,6 +28,9 @@ def home(request):
     
     return render(request, 'bingo/home.html', context)
 
+def view_404(request, exception=None):
+    return redirect('/')
+
 def join_game(request, code):
     code = code.upper()
     game = get_object_or_404(BingoGame, code=code, is_active=True)

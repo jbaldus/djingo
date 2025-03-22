@@ -147,11 +147,11 @@ class Player(models.Model):
     show_own_events = models.BooleanField(default=True)
     use_suggested_items = models.BooleanField(default=True)
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['game', 'name'],
-                name='unique_player_name_per_game'
-            )
-        ]
+    # class Meta:
+    #     constraints = [
+    #         models.UniqueConstraint(
+    #             fields=['game', 'name'],
+    #             name='unique_player_name_per_game'
+    #         )
+    #     ]
         

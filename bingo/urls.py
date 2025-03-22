@@ -9,6 +9,8 @@ from . import api_views
 # router.register(r'boards', api_views.BingoBoardViewSet, basename='board')
 # router.register(r'games', api_views.BingoGameViewSet, basename='game')
 
+handler404 = 'bingo.views.view_404'
+
 urlpatterns = [
     # Main routes
     path('', views.home, name='home'),
