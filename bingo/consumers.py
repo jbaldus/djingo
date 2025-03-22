@@ -117,7 +117,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                 await self.send(rendered_html)
             elif message_type == 'change_name':
                 player_name = await self.process_name_change(data)
-                rendered_html : str = f'<div hx-target="#player-info" hx-swap="outerHTML" id="player-info" class="player-info">Playing as: <strong>{player_name}</strong></div><div id="theModal" hx-target="#theModal" hx-swap="outerHTML"><script>document.getElementById("drawer-close-button").click()</script></div>'
+                rendered_html : str = f'<div hx-target="#player-info" hx-swap="outerHTML" id="player-info" class="player-info">Playing as: <strong>{player_name}</strong></div><div id="theModal" hx-target="#theModal" hx-swap="outerHTML"><script>document.getElementById("sidebar-close-button").click()</script></div>'
                 await self.send(rendered_html)
 
                 

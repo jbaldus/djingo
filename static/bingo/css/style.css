@@ -320,8 +320,8 @@ button.form-control, .field {
 
 /* SIDEBAR STYLING */
 
-/* Sidebar Drawer */
-/* #drawer-about {
+/* Sidebar sidebar */
+/* #sidebar-about {
     position: fixed;
     top: 0;
     left: 0;
@@ -335,12 +335,12 @@ button.form-control, .field {
 }
 
 
-#drawer-close-button {
+#sidebar-close-button {
     position: absolute;
     top: 0;
     right: 0;
 }
-#drawer-close-button svg {
+#sidebar-close-button svg {
     height: 10px;
     width: 10px;
 } */
@@ -367,8 +367,8 @@ button.form-control, .field {
     --color-black: #000000;
 }
   
-  /* Drawer Menu */
-.drawer-menu {
+  /* sidebar Menu */
+.sidebar-menu {
     position: fixed;
     display: flex;
     /* grid-template-rows: auto 1fr auto; */
@@ -387,7 +387,7 @@ button.form-control, .field {
     border: 1px solid blue;
 }
 
-.drawer-content {
+.sidebar-content {
     overflow-y: auto;
     /* border: 1px solid red; */
     /* grid-row: 2; */
@@ -395,17 +395,28 @@ button.form-control, .field {
     /* height: 50vh; */
 }
 
-#drawer-about.show {
+.sidebar-content.top-shadow {
+    box-shadow: inset 0px 8px 8px -8px rgba(0,0,0,.75);
+}
+
+.sidebar-content.bottom-shadow {
+    box-shadow: inset 0px -8px 8px -8px rgba(0,0,0,.75);
+}
+.sidebar-content.bottom-shadow.top-shadow {
+    box-shadow: inset 0px 8px 8px -8px rgba(0,0,0,.75), inset 0px -8px 8px -8px rgba(0,0,0,.75);
+}
+
+#sidebar-about.show {
     transform: translateX(0);
     box-shadow: 48px 0px 32px rgba(0,0,0,0.5);
 }  
 
-.dark .drawer-menu {
+.dark .sidebar-menu {
     background-color: var(--color-gray-800);
 }
 
-/* Drawer Menu Title */
-.drawer-menu h5 {
+/* sidebar Menu Title */
+.sidebar-menu h5 {
     font-size: 1rem;
     font-weight: 600;
     margin: 0;
@@ -414,13 +425,13 @@ button.form-control, .field {
     color: var(--color-gray-500);
 }
 
-.drawer-menu h5:not(:first-of-type) {
+.sidebar-menu h5:not(:first-of-type) {
     margin-top: 2em;
     padding-top: 0.5em;
     border-top: 1px solid var(--color-gray-300)
 }
 
-.dark .drawer-menu-title {
+.dark .sidebar-menu-title {
     color: var(--color-gray-400);
 }
 
@@ -447,8 +458,8 @@ button.form-control, .field {
     width: 10px;
 }
 
-/* Drawer Menu Item */
-.drawer-menu-item {
+/* sidebar Menu Item */
+.sidebar-menu-item {
     display: flex;
     align-items: center;
     padding: 0.5rem;
@@ -456,15 +467,15 @@ button.form-control, .field {
     color: var(--color-gray-900);
 }
 
-.dark .drawer-menu-item {
+.dark .sidebar-menu-item {
     color: var(--color-white);
 }
 
-.drawer-menu-item:hover {
+.sidebar-menu-item:hover {
     background-color: var(--color-gray-100);
 }
 
-.dark .drawer-menu-item:hover {
+.dark .sidebar-menu-item:hover {
     background-color: var(--color-gray-700);
 }
 
