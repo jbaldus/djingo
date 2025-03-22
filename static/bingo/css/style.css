@@ -69,6 +69,10 @@ body {
     margin: 5px 5px 5px 0;
 }
 
+#qr-code {
+    text-align: center;
+}
+
 /* Game board styling */
 
 .bingo-board {
