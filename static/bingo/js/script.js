@@ -12,18 +12,15 @@ function adjustFontSize(element) {
     }
 }
 
-htmx.onLoad(function(content) {
-    console.log(content);
+htmx.onLoad(content => {
+    // Adjust the font size for bingo cells
+    content.querySelectorAll('.bingo-cell-text').forEach(adjustFontSize);
     // Attach handler for data-show-target attributes if it exists in new elements
     attachShowTargetHandler(content);
-    // Adjust the font size for bingo cells
-    for (text of content.getElementsByClassName("bingo-cell-text")) {
-        adjustFontSize(text) ;
-    }
 });
 
 function attachShowTargetHandler(el) {
-    el == el || document ;
+    el = el || document ;
     el.querySelectorAll('[data-show-target]').forEach(button => {
         button.addEventListener('click', () => {
             const targetSelector = button.dataset.showTarget ;
@@ -34,7 +31,6 @@ function attachShowTargetHandler(el) {
     });
 }
   
-document.addEventListener('DOMContentLoaded', attachShowTargetHandler)
 
 // Do the shadow scroll indicator:
 document.addEventListener('DOMContentLoaded', () => {
@@ -44,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     bottomTarget = document.getElementById("sidebar-bottom-trigger")
 
     intersectionCallback = (entries) => {
-        entries.forEach((entry) => {
+        entries.forEach(entry => {
             if (entry.target == topTarget) {
                 if (entry.isIntersecting) {
                     sidebarContent.classList.remove("top-shadow")
