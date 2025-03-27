@@ -55,7 +55,7 @@ BingoBoardItemFormSet = inlineformset_factory(
 class CreateGameForm(forms.ModelForm):
     class Meta:
         model = BingoGame
-        fields = ['board', 'has_free_square', 'board_size', 'win_condition']
+        fields = ['name', 'board', 'has_free_square', 'board_size', 'win_condition']
         widgets = {
             'board_size': forms.RadioSelect,
             'win_condition': forms.RadioSelect,

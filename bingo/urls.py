@@ -5,9 +5,9 @@ from . import views
 from . import api_views
 
 # DRF router for API endpoints
-# router = routers.DefaultRouter()
-# router.register(r'boards', api_views.BingoBoardViewSet, basename='board')
-# router.register(r'games', api_views.BingoGameViewSet, basename='game')
+router = routers.DefaultRouter()
+router.register(r'boards', api_views.BingoBoardViewSet, basename='board')
+router.register(r'games', api_views.BingoGameViewSet, basename='game')
 
 handler404 = 'bingo.views.view_404'
 
@@ -26,5 +26,5 @@ urlpatterns = [
     path('deny-item/<int:item_id>/', views.deny_item, name='deny_item'),
     
     # API routes
-    # path('api/', include(router.urls)),
+    path('api/', include(router.urls)),
 ]
