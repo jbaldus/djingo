@@ -4,7 +4,7 @@
 {% load qr_code %}
 
 {% block content %}
-<div id="websocket-connection" hx-ext="ws" ws-connect="/ws/game/{{ player.id }}/">
+<div id="websocket-connection" hx-ext="ws" ws-connect="/ws/play/{{ player.id }}/">
 <div class="container">
     <div class="game-header">
         <h1>Winter Guard Bingo</h1>
