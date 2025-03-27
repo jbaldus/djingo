@@ -124,35 +124,6 @@ def logout_view(request):
     return redirect('home')
 
 
-@require_http_methods(["POST"])
-def clear_board(request, player_id):
-    try:
-        logger.info("Trying to clear board for player {player_id}")
-        player = get_object_or_404(Player, id=player_id)
-        
-        # Reset player's board
-        if player.game.has_free_square:
-            player.covered_positions = [12]  # Keep only center square if it's a free square game
-        else:
-            player.covered_positions = []
-            
-        player.has_won = False
-        player.board_layout = player.game.generate_board_layout()
-        player.save()
-        
-        return JsonResponse({
-            'status': 'cleared',
-            'covered_positions': player.covered_positions,
-            'board_items': list(player.board_layout)
-        })
-        
-    except Player.DoesNotExist:
-        return JsonResponse({'error': 'Player not found'}, status=404)
-    except Exception as e:
-        logger.exception("Error clearing board")
-        return JsonResponse({'error': str(e)}, status=500)
-
-
 def create_game(request):
     if request.method == 'POST':
         form = CreateGameForm(request.POST)
@@ -192,7 +163,6 @@ def share_game(request: HttpRequest, player_id: int):
         join_path = reverse('join_game', kwargs={'code': game.code})
         full_url = request.build_absolute_uri(join_path)
 
-        print(f"FULL URL: {full_url}")
         context = { 'url': full_url }
         return render(request, 'bingo/partials/share_game.html', context)
                 
