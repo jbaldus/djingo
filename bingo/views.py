@@ -1,4 +1,6 @@
 # bingo/views.py
+import base64
+import binascii
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.admin.views.decorators import staff_member_required
@@ -15,8 +17,13 @@ logger = logging.getLogger(__name__)
 
 
 def home(request):
+    recent_name = request.COOKIES.get('player_name', '')
+    try:
+        recent_name = base64.b64decode(recent_name.encode('ascii')).decode('utf-8')
+    except binascii.Error:
+        pass
     context = {
-        'recent_name': request.COOKIES.get('player_name', ''),
+        'recent_name': recent_name,
         'games': BingoGame.objects.filter(is_active=True).exclude(is_private=True).order_by('-created_at'),
     }
     
@@ -63,12 +70,21 @@ def join_game(request, code):
                     use_suggested_items=use_suggested_items,
                 )
             
+            # Player name is stored as base64 encoded text because cookies can only contain ascii,
+            # and I want players to be able to use UTF-8 characters in their names
+            b64_player_name = base64.b64encode(form.cleaned_data['name'].encode('utf-8')).decode('ascii')
             response = redirect('play_game', player_id=player.id)
             response.set_cookie('player_id', player.id, max_age=30*24*60*60)  # 30 days
-            response.set_cookie('player_name', form.cleaned_data['name'], max_age=30*24*60*60)  # 30 days
+            response.set_cookie('player_name', b64_player_name, max_age=30*24*60*60)  # 30 days
             return response
     else:
-        form = PlayerNameForm(initial={'name': request.COOKIES.get('player_name', '')})
+        player_name = request.COOKIES.get('player_name', '')
+        try:
+            player_name = base64.b64decode(player_name.encode('ascii')).decode('utf-8')
+        except binascii.Error:
+            pass # I __guess__ it's possible that a player's name is base64 decodable, but that will only be a problem while we switch to  this method of storing the cookie
+
+        form = PlayerNameForm(initial={'name': player_name})
     
     return render(request, 'bingo/join_game.html', {
         'game': game,
