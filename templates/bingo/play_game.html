@@ -17,20 +17,11 @@
                 >Share</button>
         <button id="about-button"
                 class="button is-secondary is-small"
-                data-show-target="#sidebar-about"
+                data-show-target="#sidebar"
                 >About</button>
     </div>
 
-    <div class="bingo-board board-{{ game.board_size }}x{{ game.board_size }}" 
-        id="bingoBoard" 
-        data-player-id="{{ player.id }}"
-        data-board-size="{{ game.board_size }}"
-        data-win-condition="{{ game.win_condition }}">
-        {# Loop through the items and their positions #}
-        {% for item, position in board_items|zip:board_positions %}  
-            {% bingo_cell item position player game %}
-        {% endfor %}
-    </div>
+    {% bingo_board player game %}
 
     {% include "bingo/partials/sidebar.html" %}
 
@@ -39,7 +30,13 @@
     <div id="errorMessage" class="error-message" style="display: none;"></div>
     <div id="connectedPlayers" class="connected-players"></div>
     <div class="game-events" hx-ext="remove-me">
-        <div id="eventsList" class="events-list"></div>
+        <div id="eventsList" class="events-list">
+            {% if events %}
+                {% for event in events %}
+                    {% event_item event %}
+                {% endfor %}
+            {% endif %}
+        </div>
     </div>
     <div class="made-with-love"><p>Made with ❤️ for winterguards by Jason Baldus.<br>Go Reeths-Puffer! Go Caledonia!</p></div>
     </div>
@@ -50,5 +47,6 @@
                 hx-ws="send"
                 hx-vals='{"type": "confirm_abandon_board"}'>New Game</button>
     </div> -->
+    <div id="immediateScript"></div>
 </div>
 {% endblock %}
