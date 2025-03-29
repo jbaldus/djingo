@@ -1,0 +1,11 @@
+
+{% load bingo_tags %}
+
+<div id="bingo-board" 
+    class="bingo-board board-{{ game.board_size }}x{{ game.board_size }}" 
+    hx-target="#bingo-board" hx-swap="outerHTML">
+    {# Loop through the items and their positions #}
+    {% for item, position in board_items|zip:board_positions %}  
+        {% bingo_cell item position player game %}
+    {% endfor %}
+</div>
