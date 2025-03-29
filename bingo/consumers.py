@@ -168,6 +168,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         rendered_html = render_to_string("bingo/partials/bingo_board.html", context=context)
         await self.send(rendered_html)
         await self.clear_modal()
+        await self.close_sidebar()
         return player
     
     @database_sync_to_async

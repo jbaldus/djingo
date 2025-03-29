@@ -190,6 +190,7 @@ class BingoBoardAdmin(admin.ModelAdmin):
 class BingoGameAdmin(admin.ModelAdmin):
     list_display = ('code', 'name', 'board', 'creator', 'created_at', 'is_active', 'player_count', 'has_winner')
     list_filter = ('is_active', 'created_at', 'has_free_square')
+    list_editable = ('is_active',)
     search_fields = ('code', 'creator__username', 'board__name')
     readonly_fields = ('code',)
     
