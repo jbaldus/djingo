@@ -38,11 +38,3 @@ def bingo_cell(item, position, player, game):
     }
     return context
 
-@register.inclusion_tag('bingo/partials/event_item.html')
-def event_item(event):
-    context = { 
-        'player': event['player'],
-        'message': event['message'],
-        'remove_in': event['remove_in'],
-    }
-    return context

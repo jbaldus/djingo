@@ -33,20 +33,13 @@
         <div id="eventsList" class="events-list">
             {% if events %}
                 {% for event in events %}
-                    {% event_item event %}
+                     {% include "bingo/partials/event_item.html" %}
                 {% endfor %}
             {% endif %}
         </div>
     </div>
     <div class="made-with-love"><p>Made with ❤️ for winterguards by Jason Baldus.<br>Go Reeths-Puffer! Go Caledonia!</p></div>
     </div>
-    <!-- <div class="danger-area">
-        <button id="abandon-board-button"
-                class="button is-danger is-small"
-                hx-trigger="click"
-                hx-ws="send"
-                hx-vals='{"type": "confirm_abandon_board"}'>New Game</button>
-    </div> -->
     <div id="immediateScript"></div>
 </div>
 {% endblock %}

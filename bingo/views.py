@@ -19,13 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def home(request):
-    recent_name = request.COOKIES.get('player_name', '')
-    try:
-        recent_name = base64.b64decode(recent_name.encode('ascii')).decode('utf-8')
-    except binascii.Error:
-        pass
     context = {
-        'recent_name': recent_name,
         'games': BingoGame.objects.filter(is_active=True).exclude(is_private=True).order_by('-created_at'),
     }
     
@@ -59,6 +53,8 @@ def join_game(request, code):
                     player.save()
                 if not player.game.is_active or game != player.game:
                     player = None
+                if player.game == game:
+                    return redirect('play_game', player_id=player.id)
 
             except Player.DoesNotExist:
                 pass
@@ -72,26 +68,41 @@ def join_game(request, code):
                     use_suggested_items=use_suggested_items,
                 )
             
-            # Player name is stored as base64 encoded text because cookies can only contain ascii,
-            # and I want players to be able to use UTF-8 characters in their names
-            b64_player_name = base64.b64encode(form.cleaned_data['name'].encode('utf-8')).decode('ascii')
             response = redirect('play_game', player_id=player.id)
             response.set_cookie('player_id', player.id, max_age=30*24*60*60)  # 30 days
-            response.set_cookie('player_name', b64_player_name, max_age=30*24*60*60)  # 30 days
             return response
     else:
-        player_name = request.COOKIES.get('player_name', '')
+        player_id = request.COOKIES.get('player_id')
+        player = Player.objects.filter(id=player_id)
         try:
-            player_name = base64.b64decode(player_name.encode('ascii')).decode('utf-8')
-        except binascii.Error:
-            pass # I __guess__ it's possible that a player's name is base64 decodable, but that will only be a problem while we switch to  this method of storing the cookie
+            player = Player.objects.get(id=player_id)
+            if player.game == game:
+                    return redirect('play_game', player_id=player.id)
+            form = PlayerNameForm(initial={'name': player.name})
+        except Player.DoesNotExist:
+            form = PlayerNameForm()
 
-        form = PlayerNameForm(initial={'name': player_name})
-    
-    return render(request, 'bingo/join_game.html', {
-        'game': game,
-        'form': form
-    })
+        return render(request, 'bingo/join_game.html', {
+            'game': game,
+            'form': form
+        })
+
+def get_latest_events(game:BingoGame) -> list:
+    lifetime = 90
+    now = timezone.now()
+    max_age = now - timezone.timedelta(seconds=lifetime)
+
+    recent_events = GameEvent.objects.filter(game=game, created_at__gt=max_age)
+
+    result = [  {
+                    'player': event.player,
+                    'message': event.message,
+                    'timestamp': event.created_at,
+                    'remove_in': max(0, (event.created_at - max_age).total_seconds()),
+                }
+                for event in recent_events
+            ]
+    return result
 
 def get_latest_events(game:BingoGame) -> list:
     lifetime = 60
