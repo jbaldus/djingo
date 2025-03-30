@@ -36,4 +36,3 @@ def bingo_cell(item, position, player, game):
         'player_id': player.id  # Add player ID to the context
     }
     return context
-
