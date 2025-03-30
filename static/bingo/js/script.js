@@ -10,6 +10,7 @@ function adjustFontSize(element) {
         fontSize-- ;
         element.style.fontSize = `${fontSize}px`
     }
+    console.log(`Adjusting the font for item ${element.text}`)
 }
 
 htmx.onLoad(content => {
@@ -31,6 +32,7 @@ function attachShowTargetHandler(el) {
     });
 }
   
+window.onload = () => document.querySelectorAll('.bingo-cell-text').forEach(adjustFontSize) ;
 
 // Do the shadow scroll indicator:
 document.addEventListener('DOMContentLoaded', () => {

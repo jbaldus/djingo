@@ -3,9 +3,10 @@ import json
 import logging
 from asgiref.sync import async_to_sync
 from django.template.loader import render_to_string
+from django.conf import settings
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import Player, BingoGame, BingoBoardItem
+from .models import Player, BingoGame, BingoBoardItem, GameEvent
 from .forms import SuggestionForm, PlayerNameChangeForm
 
 logger = logging.getLogger(__name__)
@@ -117,7 +118,8 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                 await self.send(rendered_html)
             elif message_type == 'change_name':
                 player_name = await self.process_name_change(data)
-                rendered_html : str = f'<div hx-target="#player-info" hx-swap="outerHTML" id="player-info" class="player-info">Playing as: <strong>{player_name}</strong></div><div id="theModal" hx-target="#theModal" hx-swap="outerHTML"><script>document.getElementById("sidebar-close-button").click()</script></div>'
+                rendered_html : str = f'<div hx-target="#player-info" hx-swap="outerHTML" id="player-info" class="player-info">Playing as: <strong>{player_name}</strong></div>'
+                await self.close_sidebar()
                 await self.send(rendered_html)
 
                 
@@ -144,14 +146,39 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         if event.get("sender") != self.channel_name or player.show_own_events: 
             await self.send(rendered_html)
 
-    async def start_new_game(self):
-        await self.clear_board()
-        # Reload the page
-        rendered_html : str = '<div id="theModal" hx-target="#theModal"><script>window.location.reload()</script></div>'
+    async def clear_modal(self):
+        empty_modal = '<div id="theModal" hx-target="#theModal" hx-swap="outerHTML"></div>'
+        await self.send(empty_modal)
+    
+    async def do_javascript(self, javascript:str):
+        close_script = f'<div id="immediateScript" hx-target="#immediateScript" hx-swap="outerHTML"><script>{javascript}</script></div>'
+        await self.send(close_script)
+
+    async def close_sidebar(self):
+        await self.do_javascript('document.getElementById("sidebar").classList.remove("show");')
+
+    async def start_new_game(self) -> Player:
+        player : Player = await self.clear_board()
+        context = { 
+            'player': player,
+            'game': player.game,
+            'board_items': player.board_layout,
+            'board_positions': range(player.game.board_size * player.game.board_size),
+        }
+        rendered_html = render_to_string("bingo/partials/bingo_board.html", context=context)
         await self.send(rendered_html)
+        await self.clear_modal()
+        await self.close_sidebar()
+        return player
     
     @database_sync_to_async
     def create_event(self, player, message):
+        if not getattr(settings, 'FORGET_GAME_EVENTS', False):
+            GameEvent.objects.create(
+                game=player.game,
+                player=player,
+                message=message
+            )
         async_to_sync(self.channel_layer.group_send)(
             self.game_group_name,
             {
@@ -179,7 +206,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         Player.objects.filter(id=self.player_id).update(is_connected=is_connected)
     
     @database_sync_to_async
-    def clear_board(self):
+    def clear_board(self) -> Player:
         player : Player = Player.objects.select_related('game').get(id=self.player_id)
         game : BingoGame = player.game
         player.board_layout = game.generate_board_layout()
@@ -189,6 +216,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
             player.board_layout[game.get_center_position()] = "FREE"
         player.has_won = False
         player.save()
+        return player
 
     @database_sync_to_async
     def mark_position(self, position):

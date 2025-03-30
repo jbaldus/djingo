@@ -7,13 +7,14 @@ def zip_lists(a, b):
     return zip(a, b)
 
 @register.inclusion_tag('bingo/partials/bingo_board.html')
-def bingo_board(player):
+def bingo_board(player, game):
     context = {
         'player': player,
-        'game': player.game,
+        'game': game,
         'board_items': player.board_layout,
         'board_positions': range(player.game.board_size * player.game.board_size)
     }
+    print("Bingo Board Tag Included")
     return context
 
 @register.inclusion_tag('bingo/partials/bingo_cell.html')
@@ -36,3 +37,4 @@ def bingo_cell(item, position, player, game):
         'player_id': player.id  # Add player ID to the context
     }
     return context
+

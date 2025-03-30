@@ -323,7 +323,7 @@ button.form-control, .field {
 /* SIDEBAR STYLING */
 
 /* Sidebar sidebar */
-/* #sidebar-about {
+/* #sidebar {
     position: fixed;
     top: 0;
     left: 0;
@@ -390,7 +390,7 @@ button.form-control, .field {
                 inset 0px calc(-1*var(--shadow-offset)) var(--shadow-reset) calc(-1*var(--shadow-reset)) var(--shadow-color);
 }
 
-#sidebar-about.show {
+#sidebar.show {
     transform: translateX(0);
     box-shadow: 48px 0px 32px var(--shadow-color);
 }  
