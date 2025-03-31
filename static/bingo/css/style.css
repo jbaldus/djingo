@@ -38,6 +38,8 @@
     --shadow-offset: 10px;
     --shadow-reset: 8px;
     --shadow-color: rgba(0,0,0,0.25);
+    --top-shadow: inset 0px var(--shadow-offset) var(--shadow-reset) calc(-1*var(--shadow-reset)) var(--shadow-color);
+    --bottom-shadow: inset 0px calc(-1*var(--shadow-offset)) var(--shadow-reset) calc(-1*var(--shadow-reset)) var(--shadow-color);
 }
 
 body {
@@ -124,7 +126,7 @@ body {
     justify-content: center;
     text-align: center;
     padding: 8px;
-    font-size: 1vw;
+    font-size: 3vw;
     cursor: pointer;
     transition: all 0.3s ease;
     background: white;
@@ -174,13 +176,7 @@ body {
     text-align: center;
 }
 
-/* .modal-buttons {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}*/
-
+/* BUTTONS */
 .button {
     padding: 0.65em 1em;
     border: none;
@@ -214,8 +210,8 @@ body {
     background: var(--admin-color);
     color: white;
 }
-/* Form styling */
 
+/* FORMS */
 button.form-control, .field {
     margin-top: 1rem;
 }
@@ -237,38 +233,18 @@ button.form-control, .field {
     font-size: 0.9rem;
 }
 
-
-/* Messages styling */
-
-.error-message {
-    background: #fee;
-    color: #c00;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 4px;
-    border-color: #c00;
+.suggestion-input {
+    width: 100%;
 }
 
-.connected-players {
-    margin: 10px 0;
-}
-
-.player-badge {
-    background: var(--primary-color);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    margin: 0 4px;
-    font-size: 0.9em;
-}
-
+/* MESSAGES */
 .game-events {
-    max-width: 400px;
+    width: var(--grid-size);
     margin: 20px auto;
     padding: 15px;
     background: white;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .events-list {
@@ -294,6 +270,31 @@ button.form-control, .field {
     border-bottom: none;
 }
 
+/* MESSAGES: UNUSED */
+
+.error-message {
+    background: #fee;
+    color: #c00;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border-color: #c00;
+}
+
+.connected-players {
+    margin: 10px 0;
+}
+
+.player-badge {
+    background: var(--primary-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    margin: 0 4px;
+    font-size: 0.9em;
+}
+
+/* FOOTER */
 .made-with-love {
     font-size: 0.8em;
     background-color: var(--background-color);
@@ -311,45 +312,7 @@ button.form-control, .field {
   margin: 0 auto;
 }
 
-.suggestion-input {
-    width: 100%;
-}
-
-
-
-
-
-
 /* SIDEBAR STYLING */
-
-/* Sidebar sidebar */
-/* #sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 80vw;
-    height: 100vh;
-    padding: 4px;
-    background-color: var(--background-color);
-    translate: -100%;
-    transition-property: translate;
-    transition-duration: 300ms;
-}
-
-
-#sidebar-close-button {
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-#sidebar-close-button svg {
-    height: 10px;
-    width: 10px;
-} */
-
-/* Global Styles */
-  
-  /* sidebar Menu */
 .sidebar {
     position: fixed;
     display: flex;
@@ -372,32 +335,24 @@ button.form-control, .field {
 
 .sidebar-content {
     overflow-y: auto;
-    /* border: 1px solid red; */
-    /* grid-row: 2; */
     flex-grow: 1;
-    /* height: 50vh; */
 }
 
 .sidebar-content.top-shadow {
-    box-shadow: inset 0px var(--shadow-offset) var(--shadow-reset) calc(-1*var(--shadow-reset)) var(--shadow-color);
+    box-shadow: var(--top-shadow);
 }
 
 .sidebar-content.bottom-shadow {
-    box-shadow: inset 0px calc(-1*var(--shadow-offset)) var(--shadow-reset) calc(-1*var(--shadow-reset)) var(--shadow-color);
+    box-shadow: var(--bottom-shadow);
 }
 .sidebar-content.bottom-shadow.top-shadow {
-    box-shadow: inset 0px var(--shadow-offset) var(--shadow-reset) calc(-1*var(--shadow-reset)) var(--shadow-color), 
-                inset 0px calc(-1*var(--shadow-offset)) var(--shadow-reset) calc(-1*var(--shadow-reset)) var(--shadow-color);
+    box-shadow: var(--top-shadow), var(--bottom-shadow);
 }
 
 #sidebar.show {
     transform: translateX(0);
     box-shadow: 48px 0px 32px var(--shadow-color);
 }  
-
-.dark .sidebar {
-    background-color: var(--color-gray-800);
-}
 
 /* sidebar Menu Title */
 .sidebar h5 {
@@ -413,10 +368,6 @@ button.form-control, .field {
     margin-top: 2em;
     padding-top: 0.5em;
     border-top: 1px solid var(--color-gray-300)
-}
-
-.dark .sidebar-title {
-    color: var(--color-gray-400);
 }
 
 /* Close Button */
@@ -442,39 +393,9 @@ button.form-control, .field {
     width: 10px;
 }
 
-/* sidebar Menu Item */
-.sidebar-item {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    color: var(--color-gray-900);
-}
-
-.dark .sidebar-item {
-    color: var(--color-white);
-}
-
-.sidebar-item:hover {
-    background-color: var(--color-gray-100);
-}
-
-.dark .sidebar-item:hover {
-    background-color: var(--color-gray-700);
-}
-
-.dark .close-button {
-    color: var(--color-gray-400);
-}
-
 .close-button:hover {
     background-color: var(--color-gray-200);
     color: var(--color-gray-900);
-}
-
-.dark .close-button:hover {
-    background-color: var(--color-gray-600);
-    color: var(--color-white);
 }
 
 /* SVG Icons */
@@ -484,46 +405,6 @@ button.form-control, .field {
     fill: var(--color-gray-500);
     transition: fill 0.15s ease-in-out;
 }
-
-.dark .svg-icon {
-   fill: var(--color-gray-400);
-}
-
-.group:hover .svg-icon {
-   fill: var(--color-gray-900);
-}
-
-.dark .group:hover .svg-icon {
-    fill: var(--color-white);
-}
-
-/* Badge */
-.badge {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    border-radius: 50%;
-    background-color: var(--color-gray-100);
-    color: var(--color-gray-800);
-}
-
-.dark .badge {
-    background-color: var(--color-gray-700);
-    color: var(--color-gray-300);
-}
-
-.badge.pro {
-    background-color: var(--color-blue-100);
-    color: var(--color-blue-800);
-}
-
-.dark .badge.pro {
-    background-color: var(--color-blue-900);
-    color: var(--color-blue-300);
-}
-  
 
 /* HOME PAGE STYLES */
 
