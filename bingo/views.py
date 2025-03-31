@@ -53,7 +53,7 @@ def join_game(request, code):
                     player.save()
                 if not player.game.is_active or game != player.game:
                     player = None
-                if player.game == game:
+                elif player.game == game:
                     return redirect('play_game', player_id=player.id)
 
             except Player.DoesNotExist:
