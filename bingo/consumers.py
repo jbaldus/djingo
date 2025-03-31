@@ -3,6 +3,7 @@ import json
 import logging
 from asgiref.sync import async_to_sync
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.conf import settings
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
@@ -142,7 +143,12 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
 
     async def player_event(self, event):
         player : Player = await self.get_player()
-        rendered_html : str= f'<div hx-swap-oob="afterbegin:#eventsList"><div class="event-item" remove-me="90s"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
+        game_event = event['game_event']
+        game_event['remove_in'] = 90
+        event_html : str = render_to_string("bingo/partials/event_item.html", context={'event': game_event})
+        rendered_html = f'<div hx-swap-oob="afterbegin:#eventsList">{event_html}</div>'
+        print(rendered_html)
+        # rendered_html : str= f'<div hx-swap-oob="afterbegin:#eventsList"><div class="event-item" remove-me="90s"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
         if event.get("sender") != self.channel_name or player.show_own_events: 
             await self.send(rendered_html)
 
@@ -173,17 +179,23 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def create_event(self, player, message):
+        game_event = {
+            'player': player.name,
+            'message': message,
+            'created_at': timezone.now().timestamp()*1000,
+        }
         if not getattr(settings, 'FORGET_GAME_EVENTS', False):
-            GameEvent.objects.create(
+            game_event_object = GameEvent.objects.create(
                 game=player.game,
                 player=player,
                 message=message
             )
+
         async_to_sync(self.channel_layer.group_send)(
             self.game_group_name,
             {
                 'type': 'player_event',
-                'message': message,
+                'game_event': game_event,
                 'sender': self.channel_name,
             }
         )

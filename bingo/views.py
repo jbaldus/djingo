@@ -1,7 +1,6 @@
 # bingo/views.py
 import base64
 import binascii
-from datetime import datetime, timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.admin.views.decorators import staff_member_required
@@ -115,6 +114,7 @@ def get_latest_events(game:BingoGame) -> list:
                     'player': event.player,
                     'message': event.message,
                     'remove_in': max(0, (event.created_at - max_age).total_seconds()),
+                    'created_at': event.created_at.timestamp() * 1000,
                 }
                 for event in recent_events
             ]
