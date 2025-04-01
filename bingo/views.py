@@ -1,7 +1,4 @@
 # bingo/views.py
-import base64
-import binascii
-from datetime import datetime, timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.admin.views.decorators import staff_member_required
@@ -9,10 +6,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
-from django.utils import timezone
 from .models import BingoGame, BingoBoard, Player, BingoBoardItem, GameEvent
 from .forms import LoginForm, PlayerNameForm
-import json
+from .utils import get_latest_events, get_all_events
 import logging
 
 logger = logging.getLogger(__name__)
@@ -87,38 +83,6 @@ def join_game(request, code):
             'form': form
         })
 
-def get_latest_events(game:BingoGame) -> list:
-    lifetime = 90
-    now = timezone.now()
-    max_age = now - timezone.timedelta(seconds=lifetime)
-
-    recent_events = GameEvent.objects.filter(game=game, created_at__gt=max_age)
-
-    result = [  {
-                    'player': event.player,
-                    'message': event.message,
-                    'timestamp': event.created_at,
-                    'remove_in': max(0, (event.created_at - max_age).total_seconds()),
-                }
-                for event in recent_events
-            ]
-    return result
-
-def get_latest_events(game:BingoGame) -> list:
-    lifetime = 60
-    now = timezone.now()
-    max_age = now - timezone.timedelta(seconds=lifetime)
-
-    recent_events = GameEvent.objects.filter(game=game, created_at__gt=max_age)
-
-    result = [  {
-                    'player': event.player,
-                    'message': event.message,
-                    'remove_in': max(0, (event.created_at - max_age).total_seconds()),
-                }
-                for event in recent_events
-            ]
-    return result
 
 def play_game(request, player_id):
     player = get_object_or_404(Player, id=player_id)
@@ -137,6 +101,15 @@ def play_game(request, player_id):
         'url': share_url,
         'events': events,
     })
+
+def spectate(request, code):
+    game = get_object_or_404(BingoGame, code=code)
+    events = get_all_events(game=game)
+    context = {
+        'game': game,
+        'events': events,
+    }
+    return render(request, 'bingo/spectate.html', context=context)
 
 def login_view(request):
     if request.method == 'POST':

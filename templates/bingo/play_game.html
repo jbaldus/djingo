@@ -5,7 +5,7 @@
 
 {% block content %}
 <div id="websocket-connection" hx-ext="ws" ws-connect="/ws/play/{{ player.id }}/">
-<div class="container">
+<div class="container" hx-ext="remove-me">
     <div class="game-header">
         <h1>Winter Guard Bingo</h1>
         <div id="player-info" class="player-info">
@@ -29,15 +29,7 @@
     {% include "bingo/partials/share_game.html" %}
     <div id="errorMessage" class="error-message" style="display: none;"></div>
     <div id="connectedPlayers" class="connected-players"></div>
-    <div class="game-events" hx-ext="remove-me">
-        <div id="eventsList" class="events-list">
-            {% if events %}
-                {% for event in events %}
-                     {% include "bingo/partials/event_item.html" %}
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
+    {% include "bingo/partials/game_events.html" %}
     <div class="made-with-love"><p>Made with ❤️ for winterguards by Jason Baldus.<br>Go Reeths-Puffer! Go Caledonia!</p></div>
     </div>
     <div id="immediateScript"></div>

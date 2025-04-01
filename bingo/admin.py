@@ -14,7 +14,7 @@ from .forms import BingoBoardForm, BingoBoardItemFormSet
 
 @admin.register(GameEvent)
 class GameEventAdmin(admin.ModelAdmin):
-    list_display = ('message', 'created_at')
+    list_display = ('player__name', 'game__code', 'message', 'created_at')
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
