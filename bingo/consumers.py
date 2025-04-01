@@ -206,9 +206,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         game_event = event['game_event']
         game_event['remove_in'] = 90
         event_html : str = render_to_string("bingo/partials/event_item.html", context={'event': game_event})
-        print(event_html)
         rendered_html = f'<div hx-swap-oob="afterbegin:#events-list">{event_html}</div>'
-        print(rendered_html)
         if event.get("sender") != self.channel_name or player.show_own_events: 
             await self.send(rendered_html)
 

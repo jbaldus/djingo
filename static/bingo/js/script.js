@@ -61,8 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
     }
-
-    observer = new IntersectionObserver(intersectionCallback, {root: sidebarContent, threshold: 1.0})
-    observer.observe(topTarget)
-    observer.observe(bottomTarget)
+    if (sidebarContent && topTarget && bottomTarget) {
+        observer = new IntersectionObserver(intersectionCallback, {root: sidebarContent, threshold: 1.0})
+        observer.observe(topTarget)
+        observer.observe(bottomTarget)
+    }
 })
