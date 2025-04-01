@@ -10,11 +10,11 @@ class LoginForm(AuthenticationForm):
 
 
 class PlayerNameForm(forms.Form):
-    name = forms.CharField(
+    name = forms.CharField(label="Silly Nickname",
         max_length=50,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Enter your name'
+            'placeholder': 'Enter your first name or a silly nickname'
         }),
         help_text="Just put your first name or a nickname -- we're not trying to steal any identities here 😉. This will be displayed on other players games when you mark a bingo square."
     )
@@ -27,11 +27,11 @@ class PlayerNameForm(forms.Form):
     )
 
 class PlayerNameChangeForm(forms.Form):
-    name = forms.CharField(
+    name = forms.CharField(label="Silly Nickname:",
         max_length=50,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Enter your name'
+            'placeholder': 'Enter your first name or a silly nickname'
         }),
         help_text="Just put your first name or a nickname -- we're not trying to steal any identities here 😉. This will be displayed on other players games when you mark a bingo square."
     )
