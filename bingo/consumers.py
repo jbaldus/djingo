@@ -12,6 +12,66 @@ from .forms import SuggestionForm, PlayerNameChangeForm
 
 logger = logging.getLogger(__name__)
 
+class SpectatorConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        logger.info(f"Attempting to connect spectator to game...")
+        try:
+            self.code = self.scope['url_route']['kwargs']['game_code']
+            self.game = await self.get_game()
+            self.game_group_name = f'game_{self.game.code}'
+            await self.channel_layer.group_add(
+                self.game_group_name,
+                self.channel_name
+            )
+            await self.accept()
+            self.send(text_data="Welcome")
+        except BingoGame.DoesNotExist:
+            logger.error(f"Game not found for spectator with code {self.code}")
+            return
+            
+        except Exception as e:
+            logger.exception(f"Error in connect for game {self.code}: {e}")
+            await self.close(code=4000)
+        
+    async def disconnect(self, close_code):
+        logger.info(f"Disconnecting spectator, code: {close_code}")
+        try:
+            if hasattr(self, 'game_group_name'):
+                await self.channel_layer.group_discard(
+                    self.game_group_name,
+                    self.channel_name
+                )
+                            
+        except Exception as e:
+            logger.exception("Error in disconnect")
+
+    @database_sync_to_async
+    def get_game(self):
+        try:
+            game: BingoGame = BingoGame.objects.get(code=self.code)
+            logger.info(f"Found game: {game.name} for game: {game.code}")
+            return game
+        except BingoGame.DoesNotExist:
+            logger.error(f"Game {self.code} not found")
+            return None
+        except Exception as e:
+            logger.exception(f"Error getting game {self.code}")
+            return None
+
+
+    async def player_event(self, event):
+        game_event = event['game_event']
+        game_event['remove_in'] = 0
+        event_html : str = render_to_string("bingo/partials/event_item.html", context={'event': game_event})
+        print(event_html)
+        
+        rendered_html = f'<div hx-swap-oob="afterbegin:#events-list">{event_html}</div>'
+        print(rendered_html)
+        # rendered_html : str= f'<div hx-swap-oob="afterbegin:#events-list"><div class="event-item" remove-me="90s"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
+        await self.send(rendered_html)
+
+            
+
 class BingoGameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         logger.info(f"Attempting connection for player_id: {self.scope['url_route']['kwargs'].get('player_id')}")
@@ -30,7 +90,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                 await self.send(rendered_html)
                 return
                 
-            self.game_group_name = f'game_{self.player.game.id}'
+            self.game_group_name = f'game_{self.player.game.code}'
             logger.info(f"Player {self.player_id} joining game group: {self.game_group_name}")
 
             # Join game group
@@ -146,9 +206,9 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         game_event = event['game_event']
         game_event['remove_in'] = 90
         event_html : str = render_to_string("bingo/partials/event_item.html", context={'event': game_event})
-        rendered_html = f'<div hx-swap-oob="afterbegin:#eventsList">{event_html}</div>'
+        print(event_html)
+        rendered_html = f'<div hx-swap-oob="afterbegin:#events-list">{event_html}</div>'
         print(rendered_html)
-        # rendered_html : str= f'<div hx-swap-oob="afterbegin:#eventsList"><div class="event-item" remove-me="90s"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
         if event.get("sender") != self.channel_name or player.show_own_events: 
             await self.send(rendered_html)
 

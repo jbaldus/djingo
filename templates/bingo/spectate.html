@@ -1,0 +1,36 @@
+{# templates/bingo/play_game.html #}
+{% extends 'bingo/base.html' %}
+
+{% block content %}
+<style>
+    #home-button {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    .spectator #events-list {
+        max-height: 80dvh;
+    }
+    .spectator .event-item {
+        position: relative;
+    }
+</style>
+<div id="websocket-connection" hx-ext="ws" ws-connect="/ws/spectate/{{ game.code }}/">
+<div class="container spectator">
+    <div class="game-header">
+        <a id="home-button" href="{% url 'home' %}"><button class="button is-secondary is-small">Home</button></a>
+        <h1>Winter Guard Bingo</h1>
+        <div id="game-info" class="game-info">
+            Spectating Game: <strong>{{ game.name }}</strong>
+        </div>
+        <p>Players: <strong>{{ game.players.count }}</strong></p>
+    </div>
+
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+    <div id="connectedPlayers" class="connected-players"></div>
+    {% include "bingo/partials/game_events.html" %}
+    <div class="made-with-love"><p>Made with ❤️ for winterguards by Jason Baldus.<br>Go Reeths-Puffer! Go Caledonia!</p></div>
+    </div>
+    <div id="immediateScript"></div>
+</div>
+{% endblock %}

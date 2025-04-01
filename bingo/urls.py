@@ -15,6 +15,7 @@ urlpatterns = [
     # Main routes
     path('', views.home, name='home'),
     path('join/<str:code>/', views.join_game, name='join_game'),
+    path('spectate/<str:code>/', views.spectate, name='spectate'),
     path('play/<int:player_id>/', views.play_game, name='play_game'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),

@@ -1,0 +1,9 @@
+<div class="game-events">
+    <div id="events-list" class="events-list">
+        {% if events %}
+            {% for event in events %}
+                 {% include "bingo/partials/event_item.html" %}
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
