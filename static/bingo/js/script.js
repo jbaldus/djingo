@@ -18,6 +18,8 @@ htmx.onLoad(content => {
     content.querySelectorAll('.bingo-cell-text').forEach(adjustFontSize);
     // Attach handler for data-show-target attributes if it exists in new elements
     attachShowTargetHandler(content);
+    attachHideTargetHandler(content);
+    attachToggleTargetHandler(content);
 });
 
 function attachShowTargetHandler(el) {
@@ -25,6 +27,30 @@ function attachShowTargetHandler(el) {
     el.querySelectorAll('[data-show-target]').forEach(button => {
         button.addEventListener('click', () => {
             const targetSelector = button.dataset.showTarget ;
+            document.querySelectorAll(targetSelector).forEach(target => {
+                target.classList.add('show');
+            });
+        });
+    });
+}
+
+function attachHideTargetHandler(el) {
+    el = el || document ;
+    el.querySelectorAll('[data-hide-target]').forEach(button => {
+        button.addEventListener('click', () => {
+            const targetSelector = button.dataset.hideTarget ;
+            document.querySelectorAll(targetSelector).forEach(target => {
+                target.classList.remove('show');
+            });
+        });
+    });
+}
+
+function attachToggleTargetHandler(el) {
+    el = el || document ;
+    el.querySelectorAll('[data-toggle-target]').forEach(button => {
+        button.addEventListener('click', () => {
+            const targetSelector = button.dataset.toggleTarget ;
             document.querySelectorAll(targetSelector).forEach(target => {
                 target.classList.toggle('show');
             });
@@ -46,23 +72,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (entry.target == topTarget) {
                 if (entry.isIntersecting) {
                     sidebarContent.classList.remove("top-shadow")
+                    console.log("Top Target Visible")
                 }
                 else {
                     sidebarContent.classList.add("top-shadow")
+                    console.log("Top Target Not Visible")
                 }
             }
             if (entry.target == bottomTarget) {
                 if (entry.isIntersecting) {
                     sidebarContent.classList.remove("bottom-shadow")
+                    console.log("Bottom Target Visible")
                 }
                 else {
                     sidebarContent.classList.add("bottom-shadow")
+                    console.log("Bottom Target Not Visible")
                 }
             }
         })
     }
     if (sidebarContent && topTarget && bottomTarget) {
-        observer = new IntersectionObserver(intersectionCallback, {root: sidebarContent, threshold: 1.0})
+        observer = new IntersectionObserver(intersectionCallback, {root: sidebarContent, threshold: 0.1})
         observer.observe(topTarget)
         observer.observe(bottomTarget)
     }
