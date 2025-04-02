@@ -164,3 +164,14 @@ class GameEvent(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class Feedback(models.Model):
+    name = models.CharField(max_length=50)
+    game_code = models.CharField(max_length=6, null=True, blank=True)
+    game_name = models.CharField(max_length=32, null=True, blank=True)
+    message = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback from {self.name} about Game {self.game_name} at {self.submitted_at}"

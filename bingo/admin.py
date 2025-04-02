@@ -9,8 +9,12 @@ from django.contrib import messages
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.core.exceptions import ValidationError
-from .models import User, BingoBoard, BingoBoardItem, BingoGame, Player, GameEvent
+from .models import User, BingoBoard, BingoBoardItem, BingoGame, Player, GameEvent, Feedback
 from .forms import BingoBoardForm, BingoBoardItemFormSet
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ('name', 'game_name', 'message', 'submitted_at')
 
 @admin.register(GameEvent)
 class GameEventAdmin(admin.ModelAdmin):

@@ -182,6 +182,13 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
                 rendered_html : str = f'<div hx-target="#player-info" hx-swap="outerHTML" id="player-info" class="player-info">Playing as: <strong>{player_name}</strong></div>'
                 await self.close_sidebar()
                 await self.send(rendered_html)
+            elif message_type == 'feedback_form':
+                await self.feedback_form()
+            elif message_type == 'submit_feedback':
+                await self.process_feedback(data)
+                rendered_html = render_to_string("bingo/partials/feedback_accepted.html")
+                await self.close_sidebar()
+                await self.send(rendered_html)
 
                 
         except json.JSONDecodeError:
@@ -234,6 +241,22 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         await self.clear_modal()
         await self.close_sidebar()
         return player
+    
+
+    async def feedback_form(self):
+        player = await self.get_player()
+        if player:
+            context = {
+                'player': player,
+                'form': FeedbackForm(initial={'name': player.name}),
+                'game': player.game,
+            }
+        else:
+            context = {
+                'form': FeedbackForm()
+            }
+        rendered_html = render_to_string("bingo/partials/feedback_form.html", context=context)
+        await self.send(rendered_html)
     
     @database_sync_to_async
     def create_event(self, player, message):
@@ -345,6 +368,13 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         player = await self.get_player()
         game = player.game
         return game.check_win_condition(player.covered_positions)
+    
+    @database_sync_to_async
+    def process_feedback(self, data):
+        form = FeedbackForm(data)
+        if form.is_valid():
+            feedback = form.save(commit=True)
+        return feedback
     
     @database_sync_to_async
     def process_suggestions(self, data):
