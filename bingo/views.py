@@ -7,7 +7,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 from .models import BingoGame, BingoBoard, Player, BingoBoardItem, GameEvent
-from .forms import LoginForm, PlayerNameForm
+from .forms import LoginForm, PlayerNameForm, FeedbackForm
 from .utils import get_latest_events, get_all_events
 import logging
 
@@ -172,3 +172,26 @@ def share_game(request: HttpRequest, player_id: int):
                 
     except Player.DoesNotExist:
         return JsonResponse({'error': 'Player not found'}, status=404)
+    
+def submit_feedback(request: HttpRequest, player_id: int):
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            feedback = form.save(commit=True)
+            return render(request, "bingo/partials/feedback_accepted.html", context={'feedback': feedback})
+    else:
+        try:
+            player = Player.objects.get(id=player_id)
+            game = player.game
+            initial = {
+                'name': player.name,
+                'game_code': game.code,
+                'game_name': game.name,
+            }
+            form = FeedbackForm(initial=initial)
+        except Player.DoesNotExist:
+            form = FeedbackForm()
+        val = render(request, "bingo/partials/feedback_form.html", context={"form": form})
+        print(val)
+        return val
+

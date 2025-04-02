@@ -5,6 +5,6 @@
         <p class="message">If you want to share this game with a friend, have them scan this QR Code or visit: <br>
             <b>{{ url }}</b></p>
         <div id="qr-code">{% qr_from_text url image_format="png" size="T" %}</div>
-        <button class="button is-primary" data-show-target="#share-modal">Close</button>
+        <button class="button is-primary" data-hide-target="#share-modal">Close</button>
     </div>
 </div>

@@ -8,7 +8,7 @@ from django.conf import settings
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import Player, BingoGame, BingoBoardItem, GameEvent
-from .forms import SuggestionForm, PlayerNameChangeForm
+from .forms import SuggestionForm, PlayerNameChangeForm, FeedbackForm
 
 logger = logging.getLogger(__name__)
 
@@ -63,11 +63,7 @@ class SpectatorConsumer(AsyncWebsocketConsumer):
         game_event = event['game_event']
         game_event['remove_in'] = 0
         event_html : str = render_to_string("bingo/partials/event_item.html", context={'event': game_event})
-        print(event_html)
-        
         rendered_html = f'<div hx-swap-oob="afterbegin:#events-list">{event_html}</div>'
-        print(rendered_html)
-        # rendered_html : str= f'<div hx-swap-oob="afterbegin:#events-list"><div class="event-item" remove-me="90s"><span class="event-message {event.get('class', '')}">{event['message']}</span></div></div>'
         await self.send(rendered_html)
 
             

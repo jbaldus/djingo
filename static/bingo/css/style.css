@@ -354,6 +354,10 @@ button.form-control, .field {
     box-shadow: var(--top-shadow), var(--bottom-shadow);
 }
 
+.sidebar-content div {
+    margin-bottom: 5px;
+}
+
 #sidebar.show {
     transform: translateX(0);
     box-shadow: 48px 0px 32px var(--shadow-color);
