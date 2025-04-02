@@ -237,6 +237,11 @@ button.form-control, .field {
     width: 100%;
 }
 
+.textarea {
+    width: 100%;
+    padding: 0.5em;
+}
+
 /* MESSAGES */
 .game-events {
     width: var(--grid-size);

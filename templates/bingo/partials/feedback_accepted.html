@@ -1,0 +1,15 @@
+
+{% load crispy_forms_tags %}
+
+<div class="modal show"
+     id="theModal"
+     hx-swap="outerHTML"
+     hx-target="#theModal">
+    <div class="modal-content">
+        <h2>Thank you for your feedback!</h2>
+        <div class="button-row">
+            <button class="button is-cancel"
+            data-hide-target="#theModal">Close</button>
+        </div>
+    </div>
+</div>

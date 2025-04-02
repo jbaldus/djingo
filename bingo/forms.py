@@ -2,11 +2,20 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.forms import inlineformset_factory
-from .models import BingoBoard, BingoBoardItem, BingoGame
+from .models import BingoBoard, BingoBoardItem, BingoGame, Feedback
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        fields = ['name', 'message', 'game_code', 'game_name']
+        widgets = {
+            'game_code': forms.HiddenInput(),
+            'game_name': forms.HiddenInput(),
+        }
 
 
 class PlayerNameForm(forms.Form):

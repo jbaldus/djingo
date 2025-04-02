@@ -30,6 +30,16 @@
 
         <h5>Suggest Squares</h5>
         <p>When you win a game, you will have a chance to make the game better by suggesting some new squares. Remember that we love guard and we want to keep our squares positive and uplifting of the performers and their audience.</p>
+
+        <h5>Leave Feedback</h5>
+        <p>If you want to leave some feedback:</p>
+        <div>
+                <button id="leave-feedback-button"
+                    class="button is-primary is-small"
+                    hx-ws="send"
+                    hx-vals='{"type": "feedback_form"}'
+                    >Leave Feedback</button>
+        </div>
         <div id="sidebar-bottom-trigger"></div>
     </div>
 </div>
