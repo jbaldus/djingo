@@ -1,4 +1,5 @@
 # bingo/views.py
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.admin.views.decorators import staff_member_required
@@ -42,17 +43,27 @@ def join_game(request, code):
             player_id = request.COOKIES.get('player_id')
             player = None
             try:
+                player_id_data = json.loads(player_id)
+                if type(player_id_data) == int:
+                    player_id = player_id_data
+                    player_id_data = {
+                        game.code: player_id,
+                    }
+                elif type(player_id_data) == dict:
+                    if game.code in player_id_data:
+                        player_id = player_id_data[game.code]
+                        return redirect('play_game', player_id=player_id)
+                    else:
+                        player_id = list(player_id_data.values())[-1]
                 player = Player.objects.get(id=player_id)
-                if player.name != name:
-                    player.name = name
-                    player.use_suggested_items = use_suggested_items
-                    player.save()
                 if not player.game.is_active or game != player.game:
                     player = None
                 elif player.game == game:
-                    return redirect('play_game', player_id=player.id)
+                    response = redirect('play_game', player_id=player.id)
+                    response.set_cookie('player_id', json.dumps(player_id_data), max_age=366*24*60*60)  # 366 days
+                    return response
 
-            except Player.DoesNotExist:
+            except (Player.DoesNotExist, json.decoder.JSONDecodeError, TypeError):
                 pass
 
             if player is None:
@@ -63,19 +74,34 @@ def join_game(request, code):
                     covered_positions=[12] if game.has_free_square else [],
                     use_suggested_items=use_suggested_items,
                 )
-            
+            player_id_data[game.code] = player.id
             response = redirect('play_game', player_id=player.id)
-            response.set_cookie('player_id', player.id, max_age=30*24*60*60)  # 30 days
+            response.set_cookie('player_id', json.dumps(player_id_data), max_age=30*24*60*60)  # 30 days
             return response
     else:
         player_id = request.COOKIES.get('player_id')
-        player = Player.objects.filter(id=player_id)
         try:
+            player_id_data = json.loads(player_id)
+            print(player_id_data)
+            if type(player_id_data) == int:
+                player_id = player_id_data
+                player_id_data = {
+                    game.code: player_id
+                }
+            elif type(player_id_data) == dict:
+                print(f"game.code {game.code} in player_id_data: {game.code in player_id_data}")
+                print(f"type of game.code: {type(game.code)}")
+                if game.code in player_id_data:
+                    player_id = player_id_data[game.code]
+                else:
+                    player_id = list(player_id_data.values())[-1]
             player = Player.objects.get(id=player_id)
             if player.game == game:
-                    return redirect('play_game', player_id=player.id)
+                    response = redirect('play_game', player_id=player.id)
+                    response.set_cookie('player_id', json.dumps(player_id_data), max_age=366*24*60*60)  # 366 days
+                    return response
             form = PlayerNameForm(initial={'name': player.name})
-        except Player.DoesNotExist:
+        except (Player.DoesNotExist, json.decoder.JSONDecodeError, TypeError):
             form = PlayerNameForm()
 
         return render(request, 'bingo/join_game.html', {
