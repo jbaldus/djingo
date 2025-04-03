@@ -454,6 +454,7 @@ details h6 {
     border-radius: 0.5em;
     background-color: var(--color-white);
     padding: 0.5em 1em;
+    flex-grow: 1;
 }
 
 
