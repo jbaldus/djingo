@@ -41,6 +41,7 @@ def join_game(request, code):
             name = form.cleaned_data['name']
             use_suggested_items = form.cleaned_data['use_suggested_items']
             player_id = request.COOKIES.get('player_id')
+            player_id_data = {}
             player = None
             try:
                 player_id_data = json.loads(player_id)
@@ -82,15 +83,12 @@ def join_game(request, code):
         player_id = request.COOKIES.get('player_id')
         try:
             player_id_data = json.loads(player_id)
-            print(player_id_data)
             if type(player_id_data) == int:
                 player_id = player_id_data
                 player_id_data = {
                     game.code: player_id
                 }
             elif type(player_id_data) == dict:
-                print(f"game.code {game.code} in player_id_data: {game.code in player_id_data}")
-                print(f"type of game.code: {type(game.code)}")
                 if game.code in player_id_data:
                     player_id = player_id_data[game.code]
                 else:
