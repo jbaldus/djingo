@@ -207,7 +207,7 @@ body {
     font-size: 0.8em;
 }
 
-.button-admin {
+.is-admin {
     background: var(--admin-color);
     color: white;
 }
@@ -267,6 +267,34 @@ button.form-control, .field {
     align-items: center;
 }
 
+.event-item.winning-message {
+  font-size: 1.5em;
+  animation: wiggle 1s 15;
+}
+
+@keyframes throb {
+  0% {
+      transform: scale(0.9);
+    }
+  50% {
+      transform: scale(1.1);
+    }
+  100% {
+      transform: scale(0.9);
+    }
+}
+
+@keyframes wiggle {
+  0% {
+      transform: rotate(2deg);
+    }
+  50% {
+      transform: rotate(-2deg);
+    }
+  100% {
+      transform: rotate(2deg);
+    }
+  }
 .event-time {
     color: #666;
     font-size: 0.8em;

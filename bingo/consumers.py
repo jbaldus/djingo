@@ -61,6 +61,9 @@ class SpectatorConsumer(AsyncWebsocketConsumer):
 
     async def player_event(self, event):
         game_event = event['game_event']
+        game_event['class'] = ''
+        if "has won the game" in game_event['message']:
+            game_event['class'] = 'winning-message'
         game_event['remove_in'] = 0
         event_html : str = render_to_string("bingo/partials/event_item.html", context={'event': game_event})
         rendered_html = f'<div hx-swap-oob="afterbegin:#events-list">{event_html}</div>'
@@ -208,6 +211,9 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
         player : Player = await self.get_player()
         game_event = event['game_event']
         game_event['remove_in'] = 90
+        game_event['class'] = ''
+        if "has won the game" in game_event['message']:
+            game_event['class'] = 'winning-message'
         event_html : str = render_to_string("bingo/partials/event_item.html", context={'event': game_event})
         rendered_html = f'<div hx-swap-oob="afterbegin:#events-list">{event_html}</div>'
         if event.get("sender") != self.channel_name or player.show_own_events: 

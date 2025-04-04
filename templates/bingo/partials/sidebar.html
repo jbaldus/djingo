@@ -1,3 +1,4 @@
+{% block content %}
 <div id="sidebar" class="sidebar" tabindex="-1">
     <button id="sidebar-close-button" class="close-button" type="button" aria-controls="sidebar-navigation" data-hide-target="#sidebar">
         <svg aria-hidden="true" fill="currentColor" 
@@ -40,6 +41,11 @@
                     hx-vals='{"type": "feedback_form"}'
                     >Leave Feedback</button>
         </div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'home' %}"><button class="button is-admin">Home</button></a>
+        <a href="/admin"><button class="button is-admin">Admin</button></a>
+        {% endif %}
         <div id="sidebar-bottom-trigger"></div>
     </div>
 </div>
+{% endblock %}

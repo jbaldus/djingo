@@ -118,6 +118,7 @@ def play_game(request, player_id):
     events = get_latest_events(game)
     
     return render(request, 'bingo/play_game.html', {
+        'user': request.user,
         'player': player,
         'game': game,
         'board_items': list(player.board_layout),
