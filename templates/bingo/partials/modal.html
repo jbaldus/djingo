@@ -11,8 +11,8 @@
             <input type="hidden" name="type" value="{{ consumer_message }}" >
             {{ form|crispy }}
             <button class="button is-cancel"
-                    data-show-target="#theModal">Cancel</button>
-            <button class="button is-primary" type="submit">{{ submit_text }}</button>
+                    data-hide-target="#theModal">Cancel</button>
+            <button class="button is-primary" type="submit" data-hide-target="#theModal">{{ submit_text }}</button>
         </form>
     </div>
 </div>
