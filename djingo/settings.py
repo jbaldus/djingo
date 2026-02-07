@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,10 +21,13 @@ FORGET_GAME_EVENTS = False
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '_w+zs_ekfxhmu70cr_s+^9y!)yd1yhx9-xvrbfkw8b@)!!w%*2'
+# Read secret and debug from environment variables. Use `DJINGO_SECRET_KEY`
+# and `DJINGO_DEBUG` (True/False). A local fallback is provided for
+# development convenience but should NOT be used in production.
+SECRET_KEY = os.environ.get('DJINGO_SECRET_KEY', '_w+zs_ekfxhmu70cr_s+^9y!)yd1yhx9-xvrbfkw8b@)!!w%*2')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DJINGO_DEBUG', 'False').lower() in ('1', 'true', 'yes')
 
 ALLOWED_HOSTS = ["guardbingo.com", "www.guardbingo.com", "bingo.jbladddd.com", "localhost", "btest.jbladddd.com"]
 
