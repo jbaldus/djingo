@@ -13,8 +13,7 @@ handler404 = 'bingo.views.view_404'
 
 urlpatterns = [
     # Main routes
-    path('/', views.home, name='home'),
-    path('', views.home, name='home_blank'),
+    path('', views.home, name='home'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('join/<str:code>/', views.join_game, name='join_game'),
