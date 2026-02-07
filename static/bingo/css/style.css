@@ -178,6 +178,7 @@ body {
 }
 
 /* BUTTONS */
+
 .button {
     padding: 0.65em 1em;
     border: none;
@@ -201,6 +202,11 @@ body {
     background: var(--danger-color);
 }
 
+.gb-is-big {
+    padding: 0.2rem 0.5rem;
+    font-size: 1.25rem;
+}
+
 .is-small {
     margin: 0;
     padding: 0.5em 0.8em;
@@ -213,7 +219,7 @@ body {
 }
 
 /* FORMS */
-button.form-control, .field {
+/* button.form-control, .field {
     margin-top: 1rem;
 }
 
@@ -232,7 +238,7 @@ button.form-control, .field {
 
 .field .help {
     font-size: 0.9rem;
-}
+} */
 
 .suggestion-input {
     width: 100%;

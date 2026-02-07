@@ -8,9 +8,25 @@
         <h2>Join Game: {{ game.name }}</h2>
         <form method="post">
             {% csrf_token %}
-            {{ form|crispy }}
-            <button type="submit" class="button is-primary">Start Playing</button>
+            {% crispy form %}
         </form>
     </div>
 </div>
+<script>
+    const randomizeBtn = document.getElementById("randomize-btn");
+    const nicknameInput = document.getElementById("id_nickname");
+
+    randomizeBtn.addEventListener("click", () => {
+        fetch("{% url 'random_nickname' game.code %}", {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            nicknameInput.value = data.nickname;
+        });
+    });
+</script>
 {% endblock %}

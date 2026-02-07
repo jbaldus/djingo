@@ -408,7 +408,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
     def process_name_change(self, data):
         form = PlayerNameChangeForm(data)
         if form.is_valid():
-            new_name = form.cleaned_data['name']
+            new_name = form.cleaned_data['nickname']
             player = Player.objects.get(id=self.player_id)
             if player.name != new_name:
                 player.name = new_name

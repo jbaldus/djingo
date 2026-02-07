@@ -58,14 +58,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'crispy_forms',
-    'crispy_bulma',
+    #'crispy_bulma',
+    'crispy_bootstrap5',
     'channels',
     'qr_code',
     'bingo',
 ]
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = ("bulma",)
-CRISPY_TEMPLATE_PACK = "bulma"
+# CRISPY_ALLOWED_TEMPLATE_PACKS = ("bulma",)
+# CRISPY_TEMPLATE_PACK = "bulma"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5" # Add this line
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

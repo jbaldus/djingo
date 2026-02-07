@@ -16,8 +16,8 @@ dependencies = [
     "django-charsleft-widget",
     "django-qr-code>=4.1.0",
     "django-crispy-forms>=2.3",
-    "crispy-bulma>=0.11.0",
     "python-dotenv>=1.0.0",
+    "crispy-bootstrap5>=2025.6",
 ]
 
 [tool.uv.sources]
