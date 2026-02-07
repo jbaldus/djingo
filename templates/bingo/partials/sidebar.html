@@ -30,7 +30,7 @@
         </div>
 
         <h5>Suggest Squares</h5>
-        <p>When you win a game, you will have a chance to make the game better by suggesting some new squares. Remember that we love guard and we want to keep our squares positive and uplifting of the performers and their audience.</p>
+        <p>When you get a BINGO!, you will have a chance to make the game better by suggesting some new squares. Remember that we love guard and we want to keep our squares positive and uplifting of the performers and their audience.</p>
 
         <h5>Leave Feedback</h5>
         <p>If you want to leave some feedback:</p>
@@ -44,6 +44,7 @@
         {% if user.is_authenticated %}
         <a href="{% url 'home' %}"><button class="button is-admin">Home</button></a>
         <a href="/admin"><button class="button is-admin">Admin</button></a>
+        <a href="{% url 'review_suggestions'%}"><button class="btn is-admin">Review</button></a>
         {% endif %}
         <div id="sidebar-bottom-trigger"></div>
     </div>
