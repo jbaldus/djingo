@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 from .models import BingoGame, BingoBoard, Player, BingoBoardItem, GameEvent
 from .forms import LoginForm, PlayerNameForm, FeedbackForm
-from .utils import get_latest_events, get_all_events
+from .utils import get_latest_events, get_all_events, generate_silly_nickname
 import logging
 
 logger = logging.getLogger(__name__)
@@ -36,9 +36,9 @@ def join_game(request, code):
     game = get_object_or_404(BingoGame, code=code, is_active=True)
     
     if request.method == 'POST':
-        form = PlayerNameForm(request.POST)
+        form = PlayerNameForm(request.POST, game=game)
         if form.is_valid():
-            name = form.cleaned_data['name']
+            nickname = form.cleaned_data['nickname']
             use_suggested_items = form.cleaned_data['use_suggested_items']
             player_id = request.COOKIES.get('player_id')
             player_id_data = {}
@@ -70,7 +70,7 @@ def join_game(request, code):
             if player is None:
                 player = Player.objects.create(
                     game=game,
-                    name=form.cleaned_data['name'],
+                    name=form.cleaned_data['nickname'],
                     board_layout=game.generate_board_layout(use_suggested_items),
                     covered_positions=[12] if game.has_free_square else [],
                     use_suggested_items=use_suggested_items,
@@ -100,7 +100,7 @@ def join_game(request, code):
                     return response
             form = PlayerNameForm(initial={'name': player.name})
         except (Player.DoesNotExist, json.decoder.JSONDecodeError, TypeError):
-            form = PlayerNameForm()
+            form = PlayerNameForm(game=game)
 
         return render(request, 'bingo/join_game.html', {
             'game': game,
@@ -220,3 +220,7 @@ def submit_feedback(request: HttpRequest, player_id: int):
         print(val)
         return val
 
+def random_nickname(request: HttpRequest, code: str = None):
+    game = get_object_or_404(BingoGame, code=code)
+    nickname = generate_silly_nickname(game)
+    return JsonResponse({"nickname": nickname})

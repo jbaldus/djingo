@@ -1,8 +1,13 @@
 # bingo/forms.py
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
+from django.utils.safestring import mark_safe
 from django.forms import inlineformset_factory
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Submit
+from crispy_forms.bootstrap import FieldWithButtons, StrictButton
 from .models import BingoBoard, BingoBoardItem, BingoGame, Feedback
+from .utils import generate_silly_nickname
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
@@ -19,7 +24,7 @@ class FeedbackForm(forms.ModelForm):
 
 
 class PlayerNameForm(forms.Form):
-    name = forms.CharField(label="Silly Nickname",
+    nickname = forms.CharField(label="Silly Nickname",
         max_length=50,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -35,8 +40,33 @@ class PlayerNameForm(forms.Form):
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
 
+    def __init__(self, *args, **kwargs):
+        self.game = kwargs.pop("game", None)
+        super().__init__(*args, **kwargs)
+        if not kwargs.get("initial", None):
+            self.fields["nickname"].initial = generate_silly_nickname(game=self.game)
+
+        self.helper = FormHelper()
+        self.helper.form_method = "post"
+
+        self.helper.layout = Layout(
+            FieldWithButtons(
+                "nickname",
+                StrictButton(
+                    mark_safe('<i class="bi bi-shuffle"></i>'),
+                    css_class="gb-btn btn btn-secondary",
+                    css_id="randomize-btn",
+                    type="button",
+                ),
+            ),
+            # list other fields normally so crispy renders them after nickname
+            "use_suggested_items",
+            # ...
+            Submit("submit", "Start Playing", css_class="gb-is-big btn btn-primary"),
+        )
+
 class PlayerNameChangeForm(forms.Form):
-    name = forms.CharField(label="Silly Nickname:",
+    nickname = forms.CharField(label="Silly Nickname:",
         max_length=50,
         widget=forms.TextInput(attrs={
             'class': 'form-control',

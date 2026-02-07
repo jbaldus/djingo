@@ -9,16 +9,16 @@
     <div class="game-header">
         <h1>Winter Guard Bingo</h1>
         <div id="player-info" class="player-info">
-            Playing as: <strong>{{ player.name }}</strong>
+            Playing as: <br> <strong>{{ player.name }}</strong>
         </div>
         <button id="share-button"
                 class="button is-primary is-small"
                 data-show-target="#share-modal"
-                >Share</button>
+                ><i class="bi bi-share"></i></button>
         <button id="about-button"
                 class="button is-secondary is-small"
                 data-show-target="#sidebar"
-                >About</button>
+                ><i class="bi bi-patch-question-fill"></i></button>
     </div>
 
     {% bingo_board player game %}

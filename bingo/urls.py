@@ -18,6 +18,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('join/<str:code>/', views.join_game, name='join_game'),
+    path('join/<str:code>/random-nickname', views.random_nickname, name="random_nickname"),
     path('spectate/<str:code>/', views.spectate, name='spectate'),
     path('play/<int:player_id>/', views.play_game, name='play_game'),
     path('play/<int:player_id>/share', views.share_game, name='share_game'),
