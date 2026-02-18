@@ -18,7 +18,11 @@ dependencies = [
     "django-crispy-forms>=2.3",
     "python-dotenv>=1.0.0",
     "crispy-bootstrap5>=2025.6",
+    "taskipy>=1.14.1",
 ]
 
 [tool.uv.sources]
 django-charsleft-widget = { git = "https://github.com/timmyomahony/django-charsleft-widget.git" }
+
+[tool.taskipy.tasks]
+run = "uv run daphne djingo.asgi:application -p 8300"
