@@ -28,7 +28,7 @@ class PlayerNameForm(forms.Form):
         max_length=50,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Enter your first name or a silly nickname'
+            # 'placeholder': 'Enter your first name or a silly nickname'
         }),
         help_text="Just put your first name or a nickname -- we're not trying to steal any identities here 😉. This will be displayed on other players games when you mark a bingo square."
     )
@@ -43,8 +43,9 @@ class PlayerNameForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.game = kwargs.pop("game", None)
         super().__init__(*args, **kwargs)
-        if not kwargs.get("initial", None):
-            self.fields["nickname"].initial = generate_silly_nickname(game=self.game)
+        # if not kwargs.get("initial", None):
+        self.fields["nickname"].initial = generate_silly_nickname(game=self.game)
+        self.fields["nickname"].widget.attrs['placeholder'] = self.fields["nickname"].initial
 
         self.helper = FormHelper()
         self.helper.form_method = "post"
