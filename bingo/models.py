@@ -67,6 +67,7 @@ class BingoGame(models.Model):
     code = models.CharField(max_length=6, unique=True)
     has_free_square = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_spectateable = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     winner = models.ForeignKey('Player', null=True, blank=True, on_delete=models.SET_NULL, related_name='games_won')

@@ -196,9 +196,9 @@ class BingoBoardAdmin(admin.ModelAdmin):
 
 @admin.register(BingoGame)
 class BingoGameAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name', 'board', 'creator', 'created_at', 'is_active', 'player_count', 'has_winner')
+    list_display = ('code', 'name', 'board', 'creator', 'created_at', 'is_active', 'is_spectateable', 'player_count', 'has_winner')
     list_filter = ('is_active', 'created_at', 'has_free_square')
-    list_editable = ('is_active',)
+    list_editable = ('is_active','is_spectateable')
     search_fields = ('code', 'creator__username', 'board__name')
     readonly_fields = ('code',)
     

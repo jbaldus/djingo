@@ -24,8 +24,7 @@
                                 <p>Players: {{ game.players.count }}</p>
                                 {% if game.is_active %}
                                     <a href="{% url 'join_game' game.code %}"><button class="button is-primary">Join the Game</button></a>
-                                    {% if user.is_authenticated %}
-                                        <!--<button class="button" onclick="endGame({{ game.id }})">End Game</button>-->
+                                    {% if game.is_spectateable %}
                                         <a href="{% url 'spectate' game.code %}"><button class="button is-admin">Spectate</button></a>
                                     {% endif %}
                                 {% endif %}
