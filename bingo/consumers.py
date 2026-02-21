@@ -287,7 +287,7 @@ class BingoGameConsumer(AsyncWebsocketConsumer):
     def get_player(self):
         try:
             player: Player = Player.objects.select_related('game').get(id=self.player_id)
-            logger.info(f"Found player: {player.name} for game: {player.game.code}")
+            # logger.info(f"Found player: {player.name} for game: {player.game.code}")
             return player
         except Player.DoesNotExist:
             logger.error(f"Player {self.player_id} not found")
