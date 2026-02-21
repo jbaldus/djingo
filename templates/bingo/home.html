@@ -20,7 +20,7 @@
                     {% for game in games %}
                         {% if game.is_active and not game.is_private %}
                             <div class="game-card">
-                                <h3>Game Title: {{ game.name }}</h3>
+                                <h3>{{ game.name }}</h3>
                                 <p>Players: {{ game.players.count }}</p>
                                 {% if game.is_active %}
                                     <a href="{% url 'join_game' game.code %}"><button class="button is-primary">Join the Game</button></a>
